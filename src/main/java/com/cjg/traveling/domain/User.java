@@ -23,6 +23,10 @@ public class User {
 	@Column(name ="USER_ID")
 	private Long id;
 	
+	private String password;
+	
+	private String salt;
+	
 	private String name;
 	
 	private String phone;
