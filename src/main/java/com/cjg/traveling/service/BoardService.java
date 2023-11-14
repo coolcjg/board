@@ -20,6 +20,8 @@ public class BoardService {
 	private BoardRepository boardRepository;
 	
 	public List<Board> list(BoardDTO boardDTO){
+				
+		
 		Pageable paging = PageRequest.of(boardDTO.getPageNum()-1, 10);
 		return boardRepository.findAll(paging);
 	}

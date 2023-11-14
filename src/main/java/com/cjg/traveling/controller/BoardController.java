@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cjg.traveling.domain.Board;
 import com.cjg.traveling.dto.BoardDTO;
+import com.cjg.traveling.enums.ExceptionEnum;
+import com.cjg.traveling.exception.ApiException;
 import com.cjg.traveling.service.BoardService;
 
 @RestController
@@ -18,7 +20,7 @@ public class BoardController {
 	BoardService boardService;	
 	
 	@GetMapping("/board/list")
-	public List<Board> list(@RequestParam("pageNum") int pageNum){
+	public List<Board> list(@RequestParam(required=false, defaultValue = "1") int pageNum){
 		
 		BoardDTO boardDTO = new BoardDTO();
 		boardDTO.setPageNum(pageNum);
