@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public enum ExceptionEnum {
-	
+	//STATUS, CODE, MESSAGE
 	RUNTIME_EXCEPTION(HttpStatus.BAD_REQUEST, "E0001"),
 	ACCESS_DENIED_EXCEPTION(HttpStatus.UNAUTHORIZED, "E0002"),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E0003"),
