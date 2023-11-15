@@ -1,4 +1,4 @@
-package com.cjg.traveling.advice;
+package com.cjg.traveling.exception;
 
 import java.nio.file.AccessDeniedException;
 
@@ -8,10 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.cjg.traveling.entity.ApiExceptionEntity;
-import com.cjg.traveling.enums.ExceptionEnum;
-import com.cjg.traveling.exception.ApiException;
-
 @RestControllerAdvice
 public class ApiExceptionAdvice {
 	
@@ -20,8 +16,8 @@ public class ApiExceptionAdvice {
 		e.printStackTrace();
 		return ResponseEntity.status(e.getError().getStatus())
 				.body(ApiExceptionEntity.builder()
-						.errorCode(ExceptionEnum.RUNTIME_EXCEPTION.getCode())
-						.errorMessage(e.getMessage())
+						.code(ExceptionEnum.RUNTIME_EXCEPTION.getCode())
+						.message(e.getMessage())
 						.build());
 	}
 	
@@ -31,8 +27,8 @@ public class ApiExceptionAdvice {
 		return ResponseEntity
 				.status(ExceptionEnum.RUNTIME_EXCEPTION.getStatus())
 				.body(ApiExceptionEntity.builder()
-						.errorCode(ExceptionEnum.RUNTIME_EXCEPTION.getCode())
-						.errorMessage(e.getMessage())
+						.code(ExceptionEnum.RUNTIME_EXCEPTION.getCode())
+						.message(e.getMessage())
 						.build());
 	}
 	
@@ -42,8 +38,8 @@ public class ApiExceptionAdvice {
 		return ResponseEntity
 				.status(ExceptionEnum.ACCESS_DENIED_EXCEPTION.getStatus())
 				.body(ApiExceptionEntity.builder()
-						.errorCode(ExceptionEnum.ACCESS_DENIED_EXCEPTION.getCode())
-						.errorMessage(e.getMessage())
+						.code(ExceptionEnum.ACCESS_DENIED_EXCEPTION.getCode())
+						.message(e.getMessage())
 						.build());
 	}
 	
@@ -53,8 +49,8 @@ public class ApiExceptionAdvice {
 		return ResponseEntity
 				.status(ExceptionEnum.INTERNAL_SERVER_ERROR.getStatus())
 				.body(ApiExceptionEntity.builder()
-						.errorCode(ExceptionEnum.INTERNAL_SERVER_ERROR.getCode())
-						.errorMessage(e.getMessage())
+						.code(ExceptionEnum.INTERNAL_SERVER_ERROR.getCode())
+						.message(e.getMessage())
 						.build());
 	}
 	

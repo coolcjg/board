@@ -1,7 +1,5 @@
 package com.cjg.traveling.exception;
 
-import com.cjg.traveling.enums.ExceptionEnum;
-
 import lombok.Getter;
 
 @Getter

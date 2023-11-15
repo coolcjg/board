@@ -1,15 +1,14 @@
 package com.cjg.traveling.repository;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.cjg.traveling.domain.Board;
 
-public interface BoardRepository extends CrudRepository<Board, Long> {
+public interface BoardRepository extends JpaRepository<Board, Long> {
 	
-	List<Board> findAll(Pageable paging);
+	Page<Board> findPageBy(Pageable paging);
 	
 	
 
