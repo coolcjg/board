@@ -26,10 +26,6 @@ public class BoardService {
 	
 	public Map<String, Object> list(BoardDTO boardDTO){
 		
-		if(boardDTO.getPageNumber() <= 0) {
-			throw new ApiException(ExceptionEnum.PARAM_ERROR);
-		}
-		
 		Map<String, Object> map = new HashMap();
 				
 		PageRequest pageRequest = PageRequest.of(boardDTO.getPageNumber()-1, 10);

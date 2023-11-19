@@ -1,5 +1,8 @@
 package com.cjg.traveling.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +20,25 @@ public class UserService {
 	private UserRepository userRepository;
 	
 	@Autowired
-	private Encrypt encrypt; 
+	private Encrypt encrypt;
+	
+	public Map<String,Object> existsById(String userId) {
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		boolean exists = userRepository.existsByUserId(userId);
+		
+		map.put("code", "200");
+		
+		if(exists == true) {
+			map.put("count", 1);
+		}else {
+			map.put("count", 0);
+		}
+		
+		return map;
+	}
+	
+	
 	
 	// 회원 등록
 	public User insertUser(UserDTO userDTO) {

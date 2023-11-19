@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class ApiExceptionAdvice {
@@ -53,6 +54,17 @@ public class ApiExceptionAdvice {
 						.message(e.getMessage())
 						.build());
 	}
+	
+	@ExceptionHandler({MethodArgumentTypeMismatchException.class})
+	public ResponseEntity<ApiExceptionEntity> methodArgumentTypeMismatchException(HttpServletRequest request, final Exception e){
+		e.printStackTrace();
+		return ResponseEntity
+				.status(ExceptionEnum.PARAM_ERROR.getStatus())
+				.body(ApiExceptionEntity.builder()
+						.code(ExceptionEnum.PARAM_ERROR.getCode())
+						.message(e.getMessage())
+						.build());
+	}	
 	
 
 }
