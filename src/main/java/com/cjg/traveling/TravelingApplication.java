@@ -13,6 +13,7 @@ public class TravelingApplication {
 		SpringApplication.run(TravelingApplication.class, args);
 	}
 	
+	
 	@Bean
 	public WebMvcConfigurer cosConfigurer() {
 		return new WebMvcConfigurer() {
@@ -24,5 +25,6 @@ public class TravelingApplication {
 			}
 		};
 	}
+	
 
 }

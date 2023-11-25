@@ -6,12 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cjg.traveling.domain.User;
 import com.cjg.traveling.dto.UserDTO;
 import com.cjg.traveling.dto.UserDtoInsert;
+import com.cjg.traveling.dto.UserDtoLogin;
 import com.cjg.traveling.service.UserService;
 
 @RestController
@@ -21,13 +22,18 @@ public class UserController {
 	UserService userService;
 	
 	@GetMapping("/user/count/")
-	public Map<String,Object> existsById(@RequestParam(required=true) String userId) {
+	public Map<String,Object> existsById(@RequestParam(value="userId",  required=true) String userId) {
 		return userService.existsById(userId);
 	}
 	
 	@PostMapping("/user")
-	public User insertUser(@Validated(UserDtoInsert.class) UserDTO user) {
+	public Map<String, Object> insertUser(@RequestBody @Validated(UserDtoInsert.class) UserDTO user) {
 		return userService.insertUser(user);
 	}
+	
+	@PostMapping("/user/login")
+	public Map<String, Object> login(@RequestBody @Validated(UserDtoLogin.class) UserDTO user) {
+		return userService.login(user);
+	}	
 	
 }

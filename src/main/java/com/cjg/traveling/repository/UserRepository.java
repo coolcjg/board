@@ -12,6 +12,13 @@ public interface UserRepository extends CrudRepository<User, String> {
 	// 사용자 등록시 아이디 중복 체크
 	public boolean existsByUserId(String userId);
 	
+	public User findByUserId(String userId);
+	
+	
+	
+	
+	
+	
 	/*	
 	// 사용자 목록 검색
 	public List<User> getUserList(){

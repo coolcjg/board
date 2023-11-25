@@ -1,7 +1,6 @@
 package com.cjg.traveling.domain;
 
-import javax.persistence.Embeddable;
-
+import jakarta.persistence.Embeddable;
 import lombok.Data;
 
 @Embeddable

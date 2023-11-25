@@ -1,15 +1,18 @@
 package com.cjg.traveling.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import java.time.LocalDate;
 
+import org.hibernate.annotations.DynamicUpdate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.Data;
 
 @Entity
 @Data
-
+@DynamicUpdate
 public class User {
 	
 	@Id
@@ -26,6 +29,10 @@ public class User {
 	
 	private String commnets;
 	
+	private LocalDate birthDay;
+	
 	@Embedded
 	private Address address;
+	
+	private String refreshToken;
 }
