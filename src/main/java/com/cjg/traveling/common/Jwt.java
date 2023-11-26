@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 
 public class Jwt {
@@ -20,7 +21,7 @@ public class Jwt {
 		param.put("id", "sampleId");
 		param.put("name", "sampleName");
 		
-		String token = createJwtToken(param);
+		String token = createAccessToken(param);
 		System.out.println("JWT Token : " + token);
 		
 		// 생성된 JWT토큰 검증
@@ -30,7 +31,7 @@ public class Jwt {
 	}
 	
 	// JWT 토큰 생성
-	public static String createJwtToken(Map<String, String> param) {
+	public static String createAccessToken(Map<String, String> param) {
 		
 		// Header
 		Map<String, Object> headers = new HashMap<>();
@@ -48,7 +49,7 @@ public class Jwt {
 				.setClaims(payloads)
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(System.currentTimeMillis() + 3600000))
-				.signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes())
+				.signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
 				.compact();
 		
 		
@@ -56,7 +57,7 @@ public class Jwt {
 	}
 	
 	// JWT 리프레시 토큰 생성
-	public static String createJwtRefreshToken(Map<String, String> param) {
+	public static String createRefreshToken(Map<String, String> param) {
 		
 		// Header
 		Map<String, Object> headers = new HashMap<>();
@@ -74,7 +75,7 @@ public class Jwt {
 				.setClaims(payloads)
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(System.currentTimeMillis() + 604800000))
-				.signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes())
+				.signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
 				.compact();
 		
 		
@@ -85,10 +86,10 @@ public class Jwt {
 		
 		try {
 			
-			Claims claims = Jwts.parser()
-								.setSigningKey(SECRET_KEY.getBytes())
-								.parseClaimsJws(token)
-								.getBody();
+			Jws<Claims> claims = Jwts.parserBuilder()
+									.setSigningKey(SECRET_KEY.getBytes())
+									.build()
+									.parseClaimsJws(token);
 			
 			System.out.println("result : " + claims);
 			

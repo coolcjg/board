@@ -15,6 +15,8 @@ import com.cjg.traveling.dto.UserDtoInsert;
 import com.cjg.traveling.dto.UserDtoLogin;
 import com.cjg.traveling.service.UserService;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @RestController
 public class UserController {
 	
@@ -32,8 +34,8 @@ public class UserController {
 	}
 	
 	@PostMapping("/user/login")
-	public Map<String, Object> login(@RequestBody @Validated(UserDtoLogin.class) UserDTO user) {
-		return userService.login(user);
+	public Map<String, Object> login(HttpServletResponse response, @RequestBody @Validated(UserDtoLogin.class) UserDTO user) {
+		return userService.login(user, response);
 	}	
 	
 }

@@ -13,6 +13,8 @@ import com.cjg.traveling.domain.User;
 import com.cjg.traveling.dto.UserDTO;
 import com.cjg.traveling.repository.UserRepository;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Service
 @Transactional
 public class UserService {
@@ -67,7 +69,7 @@ public class UserService {
 	}
 	
 	// 로그인
-	public Map<String, Object> login(UserDTO userDTO) {
+	public Map<String, Object> login(UserDTO userDTO, HttpServletResponse response) {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
@@ -83,15 +85,15 @@ public class UserService {
 				param.put("id", user.getUserId());
 				param.put("name", user.getName());
 				
-				String jwt = Jwt.createJwtToken(param);
-				String jwtRefresh = Jwt.createJwtRefreshToken(param);
+				String accessToken = Jwt.createAccessToken(param);
+				String refreshToken = Jwt.createRefreshToken(param);
 				
-				user.setRefreshToken(jwtRefresh);
+				user.setRefreshToken(refreshToken);
 				userRepository.save(user);
-				
+								
 				map.put("code", "200");
-				map.put("jwt", jwt);
-				map.put("jwtRefresh", jwtRefresh);
+				map.put("accessToken", accessToken);
+				map.put("refreshToken", refreshToken);
 			}else {
 				map.put("code", "E-USER-003");
 			}
