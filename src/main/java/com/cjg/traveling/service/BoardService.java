@@ -31,6 +31,8 @@ public class BoardService {
 		PageRequest pageRequest = PageRequest.of(boardDTO.getPageNumber()-1, 10);
 		Page<Board> page = boardRepository.findPageBy(pageRequest);
 		
+		System.out.println(page.getContent());
+		
 		map.put("code", "200");
 		map.put("boardList", page.getContent());
 		map.put("totalPage", page.getTotalPages() == 0 ? 1 : page.getTotalPages());
