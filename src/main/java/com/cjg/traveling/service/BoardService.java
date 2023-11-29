@@ -33,7 +33,7 @@ public class BoardService {
 		
 		map.put("code", "200");
 		map.put("boardList", page.getContent());
-		map.put("pageSize", page.getTotalPages());
+		map.put("totalPage", page.getTotalPages() == 0 ? 1 : page.getTotalPages());
 		map.put("pageNumber", page.getPageable().getPageNumber()+1);
 		
 		return map;

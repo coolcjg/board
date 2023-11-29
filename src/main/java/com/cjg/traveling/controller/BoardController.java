@@ -17,7 +17,7 @@ public class BoardController {
 	BoardService boardService;	
 	
 	@GetMapping("/board/list")
-	public Map<String, Object> list(@RequestParam(required=false, defaultValue = "1") int pageNumber){
+	public Map<String, Object> list(@RequestParam(name="pageNumber", required=false, defaultValue = "1") int pageNumber){
 		
 		BoardDTO boardDTO = new BoardDTO();
 		boardDTO.setPageNumber(pageNumber);

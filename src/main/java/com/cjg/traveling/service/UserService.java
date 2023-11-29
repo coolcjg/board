@@ -94,6 +94,8 @@ public class UserService {
 				map.put("code", "200");
 				map.put("accessToken", accessToken);
 				map.put("refreshToken", refreshToken);
+				map.put("id", user.getUserId());
+				map.put("name", user.getName());
 			}else {
 				map.put("code", "E-USER-003");
 			}
