@@ -1,10 +1,10 @@
 package com.cjg.traveling.domain;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -39,9 +39,8 @@ public class Board {
 	
 	// 등록 날짜
 	@CreationTimestamp
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm.ss.SSS")
-	@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm", timezone="Asia/Seoul")
-	private String regDate;
+	@JsonFormat(pattern="yyyy-mm-dd hh:MM")
+	private LocalDateTime regDate;
 	
 	// 수정일
 	@LastModifiedDate
