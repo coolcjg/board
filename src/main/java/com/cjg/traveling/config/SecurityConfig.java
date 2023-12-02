@@ -19,8 +19,11 @@ public class SecurityConfig implements WebMvcConfigurer {
 			.csrf(AbstractHttpConfigurer::disable)
 			.sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(
+					/*
 					(authorizeRequests) -> authorizeRequests.requestMatchers(HttpMethod.POST, "/board").authenticated()
 											.anyRequest().permitAll()
+											*/
+					(authorizeRequests) -> authorizeRequests.anyRequest().permitAll()					
 			);
 		return http.build();		
 	}
