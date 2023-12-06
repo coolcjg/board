@@ -10,6 +10,8 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 	
 	Page<Board> findPageBy(Pageable paging);
 	
+	Board save(Board board);
+	
 	
 
 }

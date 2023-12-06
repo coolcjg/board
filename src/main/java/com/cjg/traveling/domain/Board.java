@@ -37,6 +37,9 @@ public class Board {
 	// 내용
 	private String contents;
 	
+	// 지역
+	private String region;
+	
 	// 등록 날짜
 	@CreationTimestamp
 	@JsonFormat(pattern="yyyy-mm-dd hh:MM")

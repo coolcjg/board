@@ -1,6 +1,5 @@
 package com.cjg.traveling.controller;
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,10 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.cjg.traveling.dto.BoardDTO;
 import com.cjg.traveling.service.BoardService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 public class BoardController {
@@ -29,14 +29,8 @@ public class BoardController {
 	}
 	
 	@PostMapping(value ="/board")
-	public String board(@RequestParam(value = "files", required=false) List<MultipartFile> files) throws Exception{
-		
-		for(MultipartFile uploadFile : files) {
-			System.out.println("파일이름 : " + uploadFile.getOriginalFilename());
-		}
-		
-		return "aaaa";
-			
+	public Map<String, Object> board(HttpServletRequest request, BoardDTO boardDTO) throws Exception{
+		return boardService.save(request, boardDTO);
 	}	
 
 }

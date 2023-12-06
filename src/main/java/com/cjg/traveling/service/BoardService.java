@@ -11,11 +11,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.domain.Board;
+import com.cjg.traveling.domain.User;
 import com.cjg.traveling.dto.BoardDTO;
 import com.cjg.traveling.exception.ApiException;
 import com.cjg.traveling.exception.ExceptionEnum;
 import com.cjg.traveling.repository.BoardRepository;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 @Transactional
@@ -40,5 +44,30 @@ public class BoardService {
 		
 		return map;
 	}
+	
+	public Map<String, Object> save(HttpServletRequest request, BoardDTO boardDTO){
+		
+		Map<String, Object> map = new HashMap();
+		
+		String accessToken = request.getHeader("accessToken");
+		String userId = Jwt.getUserId(accessToken);
+		
+		User user = new User();
+		user.setUserId(userId);
+		
+		Board board = new Board();
+		board.setUser(user);
+		board.setTitle(boardDTO.getTitle());
+		board.setRegion(boardDTO.getRegion());
+		board.setContents(boardDTO.getContents());
+		
+		boardRepository.save(board);
+		
+		map.put("code", "200");
+		
+		return map;	
+	}
+	
+	
 
 }

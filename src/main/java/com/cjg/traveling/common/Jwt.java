@@ -99,6 +99,17 @@ public class Jwt {
 		}
 	}
 	
+	public static String getUserId(String token) {
+		
+		Jws<Claims> claims = Jwts.parserBuilder()
+								.setSigningKey(SECRET_KEY.getBytes())
+								.build()
+								.parseClaimsJws(token);
+		
+		return claims.getBody().get("id").toString();
+		
+	}
+	
 	
 	
 
