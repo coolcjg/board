@@ -4,17 +4,25 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
-
+@Component
 public class Jwt {
 	
 	// JWT 비밀키
 	private static final String SECRET_KEY = "ChopinBlackKeyChopinBlackKeyChopinBlackKeyChopinBlackKey";
 	
+	private Logger logger = LoggerFactory.getLogger(Jwt.class);
+
+	
+	/*
 	public static void main(String[] args){
 		
 		Map<String, String> param = new HashMap();
@@ -29,9 +37,10 @@ public class Jwt {
 		System.out.println("JWT Token Validation : " + isValid);
 		
 	}
+	*/
 	
 	// JWT 토큰 생성
-	public static String createAccessToken(Map<String, String> param) {
+	public String createAccessToken(Map<String, String> param) {
 		
 		// Header
 		Map<String, Object> headers = new HashMap<>();
@@ -57,7 +66,7 @@ public class Jwt {
 	}
 	
 	// JWT 리프레시 토큰 생성
-	public static String createRefreshToken(Map<String, String> param) {
+	public String createRefreshToken(Map<String, String> param) {
 		
 		// Header
 		Map<String, Object> headers = new HashMap<>();
@@ -82,24 +91,25 @@ public class Jwt {
 		return token;
 	}	
 		
-	public static boolean validateJwtToken(String token) {
+	public boolean validateJwtToken(String token) {
 		
-		try {
-			
+		try {			
 			Jws<Claims> claims = Jwts.parserBuilder()
 									.setSigningKey(SECRET_KEY.getBytes())
 									.build()
 									.parseClaimsJws(token);
 			
-			System.out.println("result : " + claims);
+			boolean result = !claims.getBody().getExpiration().before(new Date());
 			
-			return true;
+			return result;
+			
 		}catch(Exception e) {
+			logger.info("Error : " + e);
 			return false;
 		}
 	}
 	
-	public static String getUserId(String token) {
+	public String getUserId(String token) {
 		
 		Jws<Claims> claims = Jwts.parserBuilder()
 								.setSigningKey(SECRET_KEY.getBytes())
@@ -109,6 +119,8 @@ public class Jwt {
 		return claims.getBody().get("id").toString();
 		
 	}
+	
+
 	
 	
 	

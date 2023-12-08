@@ -23,6 +23,9 @@ public class UserService {
 	private UserRepository userRepository;
 	
 	@Autowired
+	private Jwt jwt;
+	
+	@Autowired
 	private Encrypt encrypt;
 	
 	public Map<String,Object> existsById(String userId) {
@@ -40,6 +43,12 @@ public class UserService {
 		
 		return map;
 	}
+	
+	public User findByUserId(String userId) {
+		return userRepository.findByUserId(userId);
+	}
+	
+	
 	
 	
 	
@@ -85,8 +94,8 @@ public class UserService {
 				param.put("id", user.getUserId());
 				param.put("name", user.getName());
 				
-				String accessToken = Jwt.createAccessToken(param);
-				String refreshToken = Jwt.createRefreshToken(param);
+				String accessToken = jwt.createAccessToken(param);
+				String refreshToken = jwt.createRefreshToken(param);
 				
 				user.setRefreshToken(refreshToken);
 				userRepository.save(user);

@@ -28,14 +28,15 @@ public class BoardService {
 	@Autowired
 	private BoardRepository boardRepository;
 	
+	@Autowired
+	private Jwt jwt;
+	
 	public Map<String, Object> list(BoardDTO boardDTO){
 		
 		Map<String, Object> map = new HashMap();
 				
 		PageRequest pageRequest = PageRequest.of(boardDTO.getPageNumber()-1, 10);
 		Page<Board> page = boardRepository.findPageBy(pageRequest);
-		
-		System.out.println(page.getContent());
 		
 		map.put("code", "200");
 		map.put("boardList", page.getContent());
@@ -50,7 +51,7 @@ public class BoardService {
 		Map<String, Object> map = new HashMap();
 		
 		String accessToken = request.getHeader("accessToken");
-		String userId = Jwt.getUserId(accessToken);
+		String userId = jwt.getUserId(accessToken);
 		
 		User user = new User();
 		user.setUserId(userId);
@@ -63,8 +64,7 @@ public class BoardService {
 		
 		boardRepository.save(board);
 		
-		map.put("code", "200");
-		
+		map.put("code", "200");		
 		return map;	
 	}
 	
