@@ -6,11 +6,17 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.cjg.traveling.repository.UserRepository;
+
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 
 @Component
@@ -20,6 +26,9 @@ public class Jwt {
 	private static final String SECRET_KEY = "ChopinBlackKeyChopinBlackKeyChopinBlackKeyChopinBlackKey";
 	
 	private Logger logger = LoggerFactory.getLogger(Jwt.class);
+	
+	@Autowired
+	private UserRepository userRepository;	
 
 	
 	/*
@@ -57,7 +66,7 @@ public class Jwt {
 		String token = Jwts.builder()
 				.setClaims(payloads)
 				.setIssuedAt(new Date())
-				.setExpiration(new Date(System.currentTimeMillis() + 3600000))
+				.setExpiration(new Date(System.currentTimeMillis() + 60000))
 				.signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
 				.compact();
 		
@@ -93,21 +102,20 @@ public class Jwt {
 		
 	public boolean validateJwtToken(String token) {
 		
-		try {			
-			Jws<Claims> claims = Jwts.parserBuilder()
-									.setSigningKey(SECRET_KEY.getBytes())
-									.build()
-									.parseClaimsJws(token);
-			
-			boolean result = !claims.getBody().getExpiration().before(new Date());
-			
-			return result;
-			
-		}catch(Exception e) {
-			logger.info("Error : " + e);
-			return false;
-		}
+		Jws<Claims> claims = Jwts.parserBuilder()
+				.setSigningKey(SECRET_KEY.getBytes())
+				.build()
+				.parseClaimsJws(token);
+
+		boolean result = !claims.getBody().getExpiration().before(new Date());
+		
+		return result;		
+		
 	}
+	
+
+	
+	
 	
 	public String getUserId(String token) {
 		

@@ -13,7 +13,8 @@ public enum ExceptionEnum {
 	ACCESS_DENIED_EXCEPTION(HttpStatus.UNAUTHORIZED, "E002"),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E003"),
 	PARAM_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E004", " PARAM ERROR"),
-	SECURITY_01(HttpStatus.UNAUTHORIZED, "S001", " 권한이 없습니다.");
+	SECURITY_01(HttpStatus.UNAUTHORIZED, "S001", " 권한이 없습니다."),
+	JWT_EXPIRE(HttpStatus.INTERNAL_SERVER_ERROR, "S002", "JWT 토큰 만료");
 	
 	private final HttpStatus status;
 	private final String code;

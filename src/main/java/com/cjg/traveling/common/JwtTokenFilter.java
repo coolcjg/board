@@ -29,19 +29,31 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 		String token = ((HttpServletRequest) request).getHeader("accessToken");
 		
 		//유효한 토큰 확인
-		if(token != null && jwt.validateJwtToken(token)) {
+		try {
+			if(token != null && jwt.validateJwtToken(token)) {
+				
+				String userId= jwt.getUserId(token);
+				
+				AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId, null, AuthorityUtils.NO_AUTHORITIES);
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				
+				SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+				securityContext.setAuthentication(authentication);
+				SecurityContextHolder.setContext(securityContext);
+			} 				
+		}catch(Exception e) {
+			System.out.println("잡았다 요놈");
+			request.setAttribute("exception", "1");
 			
-			String userId= jwt.getUserId(token);
-			
-			AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId, null, AuthorityUtils.NO_AUTHORITIES);
-			authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-			
-			SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-			securityContext.setAuthentication(authentication);
-			SecurityContextHolder.setContext(securityContext);
 		}
+
 		
-		chain.doFilter(request, response);		
+		System.out.println("AAAAAAAAAAAAAAAAAAABBB");
+		
+		
+		chain.doFilter(request, response);
+		
+
 	}
 	
 	
