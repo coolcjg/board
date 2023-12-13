@@ -61,10 +61,14 @@ public class Jwt {
 		payloads.put("id", user.getUserId());
 		payloads.put("name", user.getName());
 		
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date());
+		cal.add(Calendar.MINUTE, 30);		
+		
 		String token = Jwts.builder()
 				.setClaims(payloads)
 				.setIssuedAt(new Date())
-				.setExpiration(new Date(System.currentTimeMillis() + (60 * 1000)))
+				.setExpiration(new Date(cal.getTimeInMillis()))
 				.signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
 				.compact();
 		
