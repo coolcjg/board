@@ -18,36 +18,24 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint{
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
 		
-		System.out.println("aaaa");
-		
 		String exception = (String)request.getAttribute("exception");
 		
-		System.out.println("exception : " + exception);
-		
-		
 		if(exception != null) {
-			setResponse(response, "1");
+			setResponse(response, exception);
 		}
-		
 		
 	}
 	
 	private void setResponse(HttpServletResponse response, String message) throws IOException {
 		
-		System.out.println("aaaaaaaaa여 기 탐");
 		response.setContentType("application/json;charset=UTF-8");
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		
 		Gson gson = new Gson();
-		
 		JsonObject jsonObject = new JsonObject();
-		jsonObject.addProperty("status", "200");
-		
+		jsonObject.addProperty("status", HttpServletResponse.SC_UNAUTHORIZED);
+		jsonObject.addProperty("message", message);
 		response.getWriter().print(gson.toJson(jsonObject));
-		
-	}	
+	}
 	
-	
-	
-
 }

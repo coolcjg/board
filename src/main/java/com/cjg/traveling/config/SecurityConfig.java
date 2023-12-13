@@ -45,6 +45,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/board", "/board/list", "/board/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/user/**").permitAll()
 						.requestMatchers(HttpMethod.POST, "/user", "/user/login").permitAll()
+						.requestMatchers(HttpMethod.GET, "/jwt/**").permitAll()						
 					
 						.requestMatchers(HttpMethod.POST, "/board").authenticated()
 						.anyRequest().authenticated()													
@@ -59,6 +60,7 @@ public class SecurityConfig {
 	CorsConfigurationSource apiConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+		configuration.setAllowedHeaders(Arrays.asList("*"));
 		configuration.setAllowedMethods(Arrays.asList("*"));
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);

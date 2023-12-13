@@ -90,12 +90,10 @@ public class UserService {
 			
 			if(user.getPassword().equals(encrypt.getEncrypt(userDTO.getPassword(), user.getSalt()))) {
 				
-				Map<String, String> param = new HashMap();
-				param.put("id", user.getUserId());
-				param.put("name", user.getName());
+
 				
-				String accessToken = jwt.createAccessToken(param);
-				String refreshToken = jwt.createRefreshToken(param);
+				String accessToken = jwt.createAccessToken(user);
+				String refreshToken = jwt.createRefreshToken(user);
 				
 				user.setRefreshToken(refreshToken);
 				userRepository.save(user);

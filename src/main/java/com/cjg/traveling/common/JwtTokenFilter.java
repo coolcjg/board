@@ -12,6 +12,10 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,24 +44,20 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 				SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 				securityContext.setAuthentication(authentication);
 				SecurityContextHolder.setContext(securityContext);
-			} 				
-		}catch(Exception e) {
-			System.out.println("잡았다 요놈");
-			request.setAttribute("exception", "1");
+			}
 			
+		}catch(ExpiredJwtException e) {
+			request.setAttribute("exception", "ExpiredJwtException");			
+		}catch(UnsupportedJwtException e) {
+			request.setAttribute("exception", "UnsupportedJwtException");
+		}catch(MalformedJwtException e) {
+			request.setAttribute("exception", "MalformedJwtException");
+		}catch(SignatureException e) {
+			request.setAttribute("exception", "SignatureException");
+		}catch(IllegalArgumentException e) {
+			request.setAttribute("exception", "IllegalArgumentException");
 		}
-
-		
-		System.out.println("AAAAAAAAAAAAAAAAAAABBB");
-		
 		
 		chain.doFilter(request, response);
-		
-
 	}
-	
-	
-	
-	
-
 }
