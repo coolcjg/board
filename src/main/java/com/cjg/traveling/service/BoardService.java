@@ -1,5 +1,6 @@
 package com.cjg.traveling.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,16 +8,15 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cjg.traveling.common.Jwt;
+import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.domain.Board;
 import com.cjg.traveling.domain.User;
 import com.cjg.traveling.dto.BoardDTO;
-import com.cjg.traveling.exception.ApiException;
-import com.cjg.traveling.exception.ExceptionEnum;
 import com.cjg.traveling.repository.BoardRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,13 +35,20 @@ public class BoardService {
 		
 		Map<String, Object> map = new HashMap();
 				
-		PageRequest pageRequest = PageRequest.of(boardDTO.getPageNumber()-1, 10);
+		PageRequest pageRequest = PageRequest.of(boardDTO.getPageNumber()-1, 10, Sort.Direction.DESC, "regDate");
 		Page<Board> page = boardRepository.findPageBy(pageRequest);
 		
 		map.put("code", "200");
 		map.put("boardList", page.getContent());
-		map.put("totalPage", page.getTotalPages() == 0 ? 1 : page.getTotalPages());
-		map.put("pageNumber", page.getPageable().getPageNumber()+1);
+		
+		int pageNumber = page.getPageable().getPageNumber()+1;
+		int totalPage = page.getTotalPages() == 0 ? 1 : page.getTotalPages();
+		
+		map.put("pageNumber", pageNumber);
+		map.put("totalPage", totalPage);
+		
+		List<Integer> pagination = PageUtil.getStartEndPage(pageNumber, totalPage);
+		map.put("pagination", pagination);
 		
 		return map;
 	}

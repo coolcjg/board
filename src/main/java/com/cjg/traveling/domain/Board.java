@@ -42,7 +42,7 @@ public class Board {
 	
 	// 등록 날짜
 	@CreationTimestamp
-	@JsonFormat(pattern="yyyy-mm-dd hh:MM")
+	@JsonFormat(pattern="yyyy-MM-dd hh:mm")
 	private LocalDateTime regDate;
 	
 	// 수정일
