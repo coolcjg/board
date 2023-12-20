@@ -12,6 +12,8 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 	
 	Board save(Board board);
 	
+	Board findByBoardId(long boardId);
+	
 	
 
 }

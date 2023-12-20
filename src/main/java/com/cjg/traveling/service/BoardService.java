@@ -1,23 +1,34 @@
 package com.cjg.traveling.service;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.domain.Board;
+import com.cjg.traveling.domain.Media;
 import com.cjg.traveling.domain.User;
 import com.cjg.traveling.dto.BoardDTO;
+import com.cjg.traveling.dto.UserDTO;
 import com.cjg.traveling.repository.BoardRepository;
+import com.cjg.traveling.repository.MediaRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -25,11 +36,19 @@ import jakarta.servlet.http.HttpServletRequest;
 @Transactional
 public class BoardService {
 	
+	Logger logger = LoggerFactory.getLogger(BoardService.class);
+	
 	@Autowired
 	private BoardRepository boardRepository;
 	
 	@Autowired
+	private MediaRepository mediaRepository;
+	
+	@Autowired
 	private Jwt jwt;
+	
+	@Value("${upload-path}")
+	private String uploadPath;
 	
 	public Map<String, Object> list(BoardDTO boardDTO){
 		
@@ -53,6 +72,31 @@ public class BoardService {
 		return map;
 	}
 	
+	public Map<String, Object> findByBoardId(long boardId) {
+		
+		Map<String, Object> map = new HashMap();
+		BoardDTO boardDTO = new BoardDTO();
+		UserDTO userDTO = new UserDTO();
+		Board board = boardRepository.findByBoardId(boardId);
+		
+		boardDTO.setBoardId(board.getBoardId());
+		boardDTO.setContents(board.getContents());
+		boardDTO.setRegion(board.getRegion());
+		boardDTO.setTitle(board.getTitle());
+		boardDTO.setRegDate(board.getRegDate());
+		
+		userDTO.setName(board.getUser().getName());
+		userDTO.setUserId(board.getUser().getUserId());
+		
+		boardDTO.setUserDTO(userDTO);
+		
+		map.put("board", boardDTO);
+		map.put("code", 200);
+		
+		return map;
+	}
+	
+	
 	public Map<String, Object> save(HttpServletRequest request, BoardDTO boardDTO){
 		
 		Map<String, Object> map = new HashMap();
@@ -69,12 +113,56 @@ public class BoardService {
 		board.setRegion(boardDTO.getRegion());
 		board.setContents(boardDTO.getContents());
 		
-		boardRepository.save(board);
+		Board newBoard = boardRepository.save(board);
+		
+		//업로드 파일
+		uploadFile(newBoard, boardDTO.getFiles());
+		
 		
 		map.put("code", "200");		
 		return map;	
 	}
 	
 	
+	private boolean uploadFile(Board board, List<MultipartFile> fileList) {
+		boolean result = true;
+		
+		LocalDate now = LocalDate.now();
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+		String dateFormat = now.format(dtf);
+		String originalPath = "/original/" +  dateFormat + "/";
+		String path = uploadPath + originalPath;
+		File dir = new File(path);
+		
+		if(!dir.exists()) {
+			dir.mkdirs();
+		}
+		
+		try {
+			for(MultipartFile mf : fileList) {
+				String uuid = UUID.randomUUID().toString();
+				String extension = mf.getOriginalFilename().substring(mf.getOriginalFilename().lastIndexOf("."));
+				String originalFileName = uuid + extension;
+				File tempFile = new File(path + originalFileName);
+				
+				mf.transferTo(tempFile);
+				
+				Media media = new Media();
+				media.setBoard(board);
+				media.setType(mf.getContentType().substring(0, mf.getContentType().indexOf("/")));
+				media.setOriginalFilePath(originalPath);
+				media.setOriginalFileName(originalFileName);
+				media.setOriginalFileClientName(mf.getOriginalFilename());
+				media.setOriginalFileSize(mf.getSize());			
+				
+				mediaRepository.save(media);
+			}			
+		}catch(IOException e) {
+			result = false;
+			logger.error("ERROR : ", e);
+		}
+		
+		return result;
+	}
 
 }

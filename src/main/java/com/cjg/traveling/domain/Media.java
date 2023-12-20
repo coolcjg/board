@@ -1,0 +1,57 @@
+package com.cjg.traveling.domain;
+
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.Data;
+
+@Entity
+@Data
+public class Media {
+	
+	@Id 
+	@GeneratedValue
+	private Long mediaId;
+	
+	@ManyToOne
+	@JoinColumn(name="boardId", nullable = false)
+	private Board board;
+	
+	@CreationTimestamp
+	@JsonFormat(pattern="yyyy-MM-dd hh:mm")
+	@Column(nullable = false)
+	private LocalDateTime regDate;
+	
+	@Column(nullable = false, length = 20)
+	private String type;
+	
+	
+	@Column(nullable = false)
+	private String originalFilePath;
+	
+	@Column(nullable = false)
+	private String originalFileName;
+	
+	@Column(nullable = false)
+	private String originalFileClientName;
+		
+	@Column(nullable = false)
+	private Long originalFileSize;
+		
+	
+	private String encodingFilePath;
+	
+	private String encodingFileName;	
+	
+	private Long encodingFileSize;
+	
+}
