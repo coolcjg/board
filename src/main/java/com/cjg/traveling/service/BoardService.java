@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,12 +21,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cjg.traveling.common.FileExtension;
 import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.domain.Board;
 import com.cjg.traveling.domain.Media;
 import com.cjg.traveling.domain.User;
 import com.cjg.traveling.dto.BoardDTO;
+import com.cjg.traveling.dto.MediaDTO;
 import com.cjg.traveling.dto.UserDTO;
 import com.cjg.traveling.repository.BoardRepository;
 import com.cjg.traveling.repository.MediaRepository;
@@ -47,8 +50,13 @@ public class BoardService {
 	@Autowired
 	private Jwt jwt;
 	
-	@Value("${upload-path}")
+	@Value("${uploadPath}")
 	private String uploadPath;
+	
+	
+	@Value("${serverUrl}")
+	private String serverUrl;
+	
 	
 	public Map<String, Object> list(BoardDTO boardDTO){
 		
@@ -57,8 +65,30 @@ public class BoardService {
 		PageRequest pageRequest = PageRequest.of(boardDTO.getPageNumber()-1, 10, Sort.Direction.DESC, "regDate");
 		Page<Board> page = boardRepository.findPageBy(pageRequest);
 		
+		List<BoardDTO> boardList = new ArrayList();
+		
+		for(Board board : page.getContent()) {
+			BoardDTO temp = new BoardDTO();
+			
+			temp.setBoardId(board.getBoardId());
+			temp.setContents(board.getContents());
+			temp.setRegDate(board.getRegDate());
+			temp.setRegion(board.getRegion());
+			temp.setTitle(board.getTitle());
+			temp.setView(board.getView());
+			
+			UserDTO userDTO = new UserDTO();
+			userDTO.setName(board.getUser().getName());
+			userDTO.setUserId(board.getUser().getUserId());
+			temp.setUserDTO(userDTO);
+			
+			boardList.add(temp);
+			
+		}
+		
+		
 		map.put("code", "200");
-		map.put("boardList", page.getContent());
+		map.put("boardList", boardList);
 		
 		int pageNumber = page.getPageable().getPageNumber()+1;
 		int totalPage = page.getTotalPages() == 0 ? 1 : page.getTotalPages();
@@ -89,6 +119,20 @@ public class BoardService {
 		userDTO.setUserId(board.getUser().getUserId());
 		
 		boardDTO.setUserDTO(userDTO);
+		
+		List<MediaDTO> mediaDTOList = new ArrayList<>();
+		for(Media media : board.getMediaList()) {
+			MediaDTO mediaDTO = new MediaDTO();
+			
+			mediaDTO.setMediaId(media.getMediaId());
+			mediaDTO.setType(media.getType());
+			mediaDTO.setStatus(media.getStatus());
+			mediaDTO.setOriginalFileUrl(serverUrl + media.getOriginalFilePath() + media.getOriginalFileName());
+			
+			mediaDTOList.add(mediaDTO);
+		}
+		
+		boardDTO.setMediaDTOList(mediaDTOList);
 		
 		map.put("board", boardDTO);
 		map.put("code", 200);
@@ -149,7 +193,14 @@ public class BoardService {
 				
 				Media media = new Media();
 				media.setBoard(board);
-				media.setType(mf.getContentType().substring(0, mf.getContentType().indexOf("/")));
+				media.setType(FileExtension.checkExtension(mf.getOriginalFilename()));
+				
+				if(media.getType().equals("document")) {
+					media.setStatus("success");					
+				}else {
+					media.setStatus("wait");
+				}
+				
 				media.setOriginalFilePath(originalPath);
 				media.setOriginalFileName(originalFileName);
 				media.setOriginalFileClientName(mf.getOriginalFilename());
