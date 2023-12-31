@@ -43,6 +43,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(
 					(authorizeRequests) -> authorizeRequests
 						.requestMatchers(HttpMethod.GET, "/upload/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/image/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/board", "/board/list", "/board/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/user/**").permitAll()
 						.requestMatchers(HttpMethod.POST, "/user", "/user/login").permitAll()

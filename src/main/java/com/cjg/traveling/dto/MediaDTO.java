@@ -17,4 +17,8 @@ public class MediaDTO {
 	
 	private String originalFileUrl;
 	
+	private String thumbnailPath;
+	
+	private String thumbnailImgUrl;
+	
 }

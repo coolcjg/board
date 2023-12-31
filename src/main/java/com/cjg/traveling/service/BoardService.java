@@ -129,6 +129,16 @@ public class BoardService {
 			mediaDTO.setStatus(media.getStatus());
 			mediaDTO.setOriginalFileUrl(serverUrl + media.getOriginalFilePath() + media.getOriginalFileName());
 			
+			if(media.getType().equals("video")) {
+				mediaDTO.setThumbnailImgUrl(serverUrl + media.getThumbnailPath());
+			}else if(media.getType().equals("audio")) {
+				mediaDTO.setThumbnailImgUrl(serverUrl + "/image/audio.jpg");
+			}else if(media.getType().equals("image")) {
+				mediaDTO.setThumbnailImgUrl(serverUrl + media.getOriginalFilePath() + media.getOriginalFileName());
+			}else {
+				mediaDTO.setThumbnailImgUrl(serverUrl + "/image/document.jpg");
+			}
+			
 			mediaDTOList.add(mediaDTO);
 		}
 		
