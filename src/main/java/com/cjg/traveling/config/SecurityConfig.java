@@ -42,6 +42,8 @@ public class SecurityConfig {
 			.sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(
 					(authorizeRequests) -> authorizeRequests
+						.requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/upload/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/image/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/board", "/board/list", "/board/**").permitAll()

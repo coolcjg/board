@@ -3,9 +3,9 @@ package com.cjg.traveling.domain;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicUpdate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,6 +20,7 @@ import lombok.ToString;
 @Entity
 @Data
 @ToString(exclude = "board")
+@DynamicUpdate
 public class Media {
 	
 	@Id 

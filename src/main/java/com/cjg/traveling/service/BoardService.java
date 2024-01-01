@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cjg.traveling.common.FileExtension;
+import com.cjg.traveling.common.HttpRequestUtil;
 import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.domain.Board;
@@ -48,6 +49,9 @@ public class BoardService {
 	private MediaRepository mediaRepository;
 	
 	@Autowired
+	private HttpRequestUtil httpRequestUtil;
+	
+	@Autowired
 	private Jwt jwt;
 	
 	@Value("${uploadPath}")
@@ -56,6 +60,9 @@ public class BoardService {
 	
 	@Value("${serverUrl}")
 	private String serverUrl;
+	
+	@Value("${encodeReturnUrl}")
+	private String encodeReturnUrl;
 	
 	
 	public Map<String, Object> list(BoardDTO boardDTO){
@@ -170,23 +177,30 @@ public class BoardService {
 		Board newBoard = boardRepository.save(board);
 		
 		//업로드 파일
-		uploadFile(newBoard, boardDTO.getFiles());
+		List<Map<String, String>>  mediaList = uploadFile(newBoard, boardDTO.getFiles());
 		
+		//업로드 서버 요청 전달
+		for(Map<String, String> media : mediaList) {
+			Map<String, String> encodingParam = new HashMap();
+			encodingParam.put("mediaId", media.get("mediaId"));
+			encodingParam.put("originalFile", media.get("originalFile"));
+			encodingParam.put("returnUrl", encodeReturnUrl);
+			httpRequestUtil.encodingRequest(encodingParam);
+		}
 		
 		map.put("code", "200");		
 		return map;	
 	}
 	
 	
-	private boolean uploadFile(Board board, List<MultipartFile> fileList) {
-		boolean result = true;
+	private List<Map<String,String>> uploadFile(Board board, List<MultipartFile> fileList) {
+		List<Map<String,String>> result = new ArrayList();
 		
 		LocalDate now = LocalDate.now();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 		String dateFormat = now.format(dtf);
-		String originalPath = "/original/" +  dateFormat + "/";
-		String path = uploadPath + originalPath;
-		File dir = new File(path);
+		String originalPath = uploadPath + "original/" +  dateFormat + "/";
+		File dir = new File(originalPath);
 		
 		if(!dir.exists()) {
 			dir.mkdirs();
@@ -197,7 +211,7 @@ public class BoardService {
 				String uuid = UUID.randomUUID().toString();
 				String extension = mf.getOriginalFilename().substring(mf.getOriginalFilename().lastIndexOf("."));
 				String originalFileName = uuid + extension;
-				File tempFile = new File(path + originalFileName);
+				File tempFile = new File(originalPath + originalFileName);
 				
 				mf.transferTo(tempFile);
 				
@@ -216,10 +230,15 @@ public class BoardService {
 				media.setOriginalFileClientName(mf.getOriginalFilename());
 				media.setOriginalFileSize(mf.getSize());			
 				
-				mediaRepository.save(media);
+				Media newMedia = mediaRepository.save(media);
+				
+				Map<String, String> mediaMap = new HashMap();
+				mediaMap.put("mediaId", newMedia.getMediaId() + "");
+				mediaMap.put("originalFile", newMedia.getOriginalFilePath() + newMedia.getOriginalFileName());
+				result.add(mediaMap);
+				
 			}			
 		}catch(IOException e) {
-			result = false;
 			logger.error("ERROR : ", e);
 		}
 		

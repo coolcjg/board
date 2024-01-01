@@ -12,9 +12,12 @@ public class MediaDTO {
 	private String status;
 	
 	private String originalFilePath;
-
 	private String originalFileName;
 	
+	private String encodingFilePath;
+	private String encodingFileName;
+	private Long encodingFileSize;
+		
 	private String originalFileUrl;
 	
 	private String thumbnailPath;
