@@ -24,4 +24,6 @@ public class MediaDTO {
 	
 	private String thumbnailImgUrl;
 	
+	private int percent;
+	
 }
