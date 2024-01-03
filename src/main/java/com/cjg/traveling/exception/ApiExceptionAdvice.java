@@ -9,7 +9,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import jakarta.servlet.http.HttpServletRequest;
 
-@RestControllerAdvice
+@RestControllerAdvice("com.cjg.traveling")
 public class ApiExceptionAdvice {
 	
 	@ExceptionHandler({ApiException.class})
@@ -65,6 +65,4 @@ public class ApiExceptionAdvice {
 						.message(e.getMessage())
 						.build());
 	}	
-	
-
 }

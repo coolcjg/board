@@ -17,6 +17,7 @@ public class MediaDTO {
 	private String encodingFilePath;
 	private String encodingFileName;
 	private Long encodingFileSize;
+	private String encodingFileUrl;
 		
 	private String originalFileUrl;
 	

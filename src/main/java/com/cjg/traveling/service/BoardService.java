@@ -134,16 +134,24 @@ public class BoardService {
 			mediaDTO.setMediaId(media.getMediaId());
 			mediaDTO.setType(media.getType());
 			mediaDTO.setStatus(media.getStatus());
-			mediaDTO.setOriginalFileUrl(serverUrl + media.getOriginalFilePath() + media.getOriginalFileName());
 			
-			if(media.getType().equals("video")) {
-				mediaDTO.setThumbnailImgUrl(serverUrl + media.getThumbnailPath());
-			}else if(media.getType().equals("audio")) {
-				mediaDTO.setThumbnailImgUrl(serverUrl + "/image/audio.jpg");
-			}else if(media.getType().equals("image")) {
-				mediaDTO.setThumbnailImgUrl(serverUrl + media.getOriginalFilePath() + media.getOriginalFileName());
-			}else {
-				mediaDTO.setThumbnailImgUrl(serverUrl + "/image/document.jpg");
+			if(media.getStatus().equals("success")) {
+			
+				mediaDTO.setEncodingFileUrl(serverUrl 
+												+ media.getEncodingFilePath().substring( media.getEncodingFilePath().indexOf("/upload/") ) 
+												+ media.getEncodingFileName());
+				
+				if(media.getType().equals("video")) {
+				
+					mediaDTO.setThumbnailImgUrl(serverUrl 
+												+ media.getThumbnailPath().substring(media.getThumbnailPath().indexOf("/upload/")));
+				}else if(media.getType().equals("audio")) {
+					mediaDTO.setThumbnailImgUrl(serverUrl + "/image/audio.jpg");
+				}else if(media.getType().equals("image")) {
+					mediaDTO.setThumbnailImgUrl(serverUrl + media.getOriginalFilePath() + media.getOriginalFileName());
+				}else {
+					mediaDTO.setThumbnailImgUrl(serverUrl + "/image/document.jpg");
+				}
 			}
 			
 			mediaDTOList.add(mediaDTO);
@@ -183,6 +191,7 @@ public class BoardService {
 		for(Map<String, String> media : mediaList) {
 			Map<String, String> encodingParam = new HashMap();
 			encodingParam.put("mediaId", media.get("mediaId"));
+			encodingParam.put("type", media.get("type"));
 			encodingParam.put("originalFile", media.get("originalFile"));
 			encodingParam.put("returnUrl", encodeReturnUrl);
 			httpRequestUtil.encodingRequest(encodingParam);
@@ -234,6 +243,7 @@ public class BoardService {
 				
 				Map<String, String> mediaMap = new HashMap();
 				mediaMap.put("mediaId", newMedia.getMediaId() + "");
+				mediaMap.put("type", newMedia.getType());
 				mediaMap.put("originalFile", newMedia.getOriginalFilePath() + newMedia.getOriginalFileName());
 				result.add(mediaMap);
 				
