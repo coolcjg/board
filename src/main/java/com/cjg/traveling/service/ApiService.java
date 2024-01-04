@@ -38,6 +38,7 @@ public class ApiService {
 			media.setEncodingFilePath(dto.getEncodingFilePath());
 			media.setEncodingFileSize(dto.getEncodingFileSize());
 			media.setThumbnailPath(dto.getThumbnailPath());
+			media.setPercent(100);
 		}
 		
 		Map<String, Object> result = new HashMap();
