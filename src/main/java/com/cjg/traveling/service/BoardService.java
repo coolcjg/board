@@ -37,7 +37,7 @@ import com.cjg.traveling.repository.MediaRepository;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class BoardService {
 	
 	Logger logger = LoggerFactory.getLogger(BoardService.class);
@@ -136,20 +136,31 @@ public class BoardService {
 			mediaDTO.setStatus(media.getStatus());
 			
 			if(media.getStatus().equals("success")) {
-			
-				mediaDTO.setEncodingFileUrl(serverUrl 
-												+ media.getEncodingFilePath().substring( media.getEncodingFilePath().indexOf("/upload/") ) 
-												+ media.getEncodingFileName());
-				
+							
 				if(media.getType().equals("video")) {
+					
+					mediaDTO.setEncodingFileUrl(serverUrl 
+							+ media.getEncodingFilePath().substring( media.getEncodingFilePath().indexOf("/upload/") ) 
+							+ media.getEncodingFileName());					
 				
 					mediaDTO.setThumbnailImgUrl(serverUrl 
 												+ media.getThumbnailPath().substring(media.getThumbnailPath().indexOf("/upload/")));
 				}else if(media.getType().equals("audio")) {
+					
+					mediaDTO.setEncodingFileUrl(serverUrl 
+							+ media.getEncodingFilePath().substring( media.getEncodingFilePath().indexOf("/upload/") ) 
+							+ media.getEncodingFileName());
+					
 					mediaDTO.setThumbnailImgUrl(serverUrl + "/image/audio.jpg");
 				}else if(media.getType().equals("image")) {
-					mediaDTO.setThumbnailImgUrl(serverUrl + media.getOriginalFilePath() + media.getOriginalFileName());
+					
+					mediaDTO.setEncodingFileUrl(serverUrl 
+							+ media.getEncodingFilePath().substring( media.getEncodingFilePath().indexOf("/upload/") ) 
+							+ media.getEncodingFileName());
+					
+					mediaDTO.setThumbnailImgUrl(serverUrl + media.getThumbnailPath().substring(media.getThumbnailPath().indexOf("/upload/")));
 				}else {
+					mediaDTO.setEncodingFileUrl(serverUrl + "/image/document-large.jpg");
 					mediaDTO.setThumbnailImgUrl(serverUrl + "/image/document.jpg");
 				}
 			}
@@ -166,7 +177,7 @@ public class BoardService {
 	}
 	
 	
-	public Map<String, Object> save(HttpServletRequest request, BoardDTO boardDTO){
+	public Map<String, Object> save(HttpServletRequest request, BoardDTO boardDTO) throws Exception{
 		
 		Map<String, Object> map = new HashMap();
 		
@@ -194,7 +205,9 @@ public class BoardService {
 			encodingParam.put("type", media.get("type"));
 			encodingParam.put("originalFile", media.get("originalFile"));
 			encodingParam.put("returnUrl", encodeReturnUrl);
-			httpRequestUtil.encodingRequest(encodingParam);
+			String postResult = httpRequestUtil.encodingRequest(encodingParam);
+			logger.info("postResult");
+			logger.info(postResult);
 		}
 		
 		map.put("code", "200");		
@@ -229,7 +242,8 @@ public class BoardService {
 				media.setType(FileExtension.checkExtension(mf.getOriginalFilename()));
 				
 				if(media.getType().equals("document")) {
-					media.setStatus("success");					
+					media.setStatus("success");
+					media.setPercent(100);
 				}else {
 					media.setStatus("wait");
 				}
@@ -241,11 +255,13 @@ public class BoardService {
 				
 				Media newMedia = mediaRepository.save(media);
 				
-				Map<String, String> mediaMap = new HashMap();
-				mediaMap.put("mediaId", newMedia.getMediaId() + "");
-				mediaMap.put("type", newMedia.getType());
-				mediaMap.put("originalFile", newMedia.getOriginalFilePath() + newMedia.getOriginalFileName());
-				result.add(mediaMap);
+				if(media.getType().equals("video") || media.getType().equals("audio") || media.getType().equals("image")) {
+					Map<String, String> mediaMap = new HashMap();
+					mediaMap.put("mediaId", newMedia.getMediaId() + "");
+					mediaMap.put("type", newMedia.getType());
+					mediaMap.put("originalFile", newMedia.getOriginalFilePath() + newMedia.getOriginalFileName());
+					result.add(mediaMap);
+				}
 				
 			}			
 		}catch(IOException e) {
