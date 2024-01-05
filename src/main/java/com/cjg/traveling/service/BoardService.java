@@ -116,6 +116,9 @@ public class BoardService {
 		UserDTO userDTO = new UserDTO();
 		Board board = boardRepository.findByBoardId(boardId);
 		
+		//조회수 통계 추가
+		board.setView(board.getView()+1);
+		
 		boardDTO.setBoardId(board.getBoardId());
 		boardDTO.setContents(board.getContents());
 		boardDTO.setRegion(board.getRegion());
@@ -196,18 +199,20 @@ public class BoardService {
 		Board newBoard = boardRepository.save(board);
 		
 		//업로드 파일
-		List<Map<String, String>>  mediaList = uploadFile(newBoard, boardDTO.getFiles());
-		
-		//업로드 서버 요청 전달
-		for(Map<String, String> media : mediaList) {
-			Map<String, String> encodingParam = new HashMap();
-			encodingParam.put("mediaId", media.get("mediaId"));
-			encodingParam.put("type", media.get("type"));
-			encodingParam.put("originalFile", media.get("originalFile"));
-			encodingParam.put("returnUrl", encodeReturnUrl);
-			String postResult = httpRequestUtil.encodingRequest(encodingParam);
-			logger.info("postResult");
-			logger.info(postResult);
+		if(boardDTO.getFiles() != null && boardDTO.getFiles().size() > 0) {
+			List<Map<String, String>>  mediaList = uploadFile(newBoard, boardDTO.getFiles());
+			
+			//업로드 서버 요청 전달
+			for(Map<String, String> media : mediaList) {
+				Map<String, String> encodingParam = new HashMap();
+				encodingParam.put("mediaId", media.get("mediaId"));
+				encodingParam.put("type", media.get("type"));
+				encodingParam.put("originalFile", media.get("originalFile"));
+				encodingParam.put("returnUrl", encodeReturnUrl);
+				String postResult = httpRequestUtil.encodingRequest(encodingParam);
+				logger.info("postResult");
+				logger.info(postResult);
+			}			
 		}
 		
 		map.put("code", "200");		
