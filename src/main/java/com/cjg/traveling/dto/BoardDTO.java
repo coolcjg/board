@@ -34,5 +34,9 @@ public class BoardDTO {
 	@JsonFormat(pattern="yyyy-MM-dd HH:mm")
 	private LocalDateTime regDate;
 	
+	private String searchType;
+	
+	private String searchText;
+	
 
 }

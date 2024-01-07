@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +30,7 @@ import com.cjg.traveling.domain.Board;
 import com.cjg.traveling.domain.Media;
 import com.cjg.traveling.domain.User;
 import com.cjg.traveling.dto.BoardDTO;
+import com.cjg.traveling.dto.BoardSpecs;
 import com.cjg.traveling.dto.MediaDTO;
 import com.cjg.traveling.dto.UserDTO;
 import com.cjg.traveling.repository.BoardRepository;
@@ -65,12 +67,35 @@ public class BoardService {
 	private String encodeReturnUrl;
 	
 	
-	public Map<String, Object> list(BoardDTO boardDTO){
+	public Map<String, Object> list(Map<String, Object> map){
 		
-		Map<String, Object> map = new HashMap();
+		Map<String, Object> result = new HashMap<String, Object>();
+		
+		BoardDTO boardDTO = new BoardDTO();
+		int pageNumber=1;
+		
+		if(map.get("pageNumber") != null && !map.get("pageNumber").toString().equals("")) {
+			pageNumber = Integer.parseInt(map.get("pageNumber").toString());
+		}
+		
+		boardDTO.setPageNumber(pageNumber);
+		
+		Specification<Board> specification = null;
+		if(map.get("searchText") != null && !map.get("searchText").toString().equals("")) {
+			Map<String, Object> whereParam = new HashMap<String, Object>();
+			whereParam.put("searchType", map.get("searchType"));
+			whereParam.put("searchText", map.get("searchText"));
+			specification = BoardSpecs.searchWith(whereParam);
+		}
 				
 		PageRequest pageRequest = PageRequest.of(boardDTO.getPageNumber()-1, 10, Sort.Direction.DESC, "regDate");
-		Page<Board> page = boardRepository.findPageBy(pageRequest);
+		Page<Board> page;
+		
+		if(specification == null) {
+			page = boardRepository.findAll(pageRequest);
+		}else {
+			page = boardRepository.findAll(specification, pageRequest);
+		}
 		
 		List<BoardDTO> boardList = new ArrayList();
 		
@@ -93,20 +118,17 @@ public class BoardService {
 			
 		}
 		
+		result.put("code", "200");
+		result.put("boardList", boardList);
 		
-		map.put("code", "200");
-		map.put("boardList", boardList);
-		
-		int pageNumber = page.getPageable().getPageNumber()+1;
 		int totalPage = page.getTotalPages() == 0 ? 1 : page.getTotalPages();
-		
-		map.put("pageNumber", pageNumber);
-		map.put("totalPage", totalPage);
+		result.put("pageNumber", page.getPageable().getPageNumber()+1);
+		result.put("totalPage", totalPage);
 		
 		List<Integer> pagination = PageUtil.getStartEndPage(pageNumber, totalPage);
-		map.put("pagination", pagination);
+		result.put("pagination", pagination);
 		
-		return map;
+		return result;
 	}
 	
 	public Map<String, Object> findByBoardId(long boardId) {
