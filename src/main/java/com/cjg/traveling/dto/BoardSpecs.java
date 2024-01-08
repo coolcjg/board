@@ -1,5 +1,6 @@
 package com.cjg.traveling.dto;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,18 @@ public class BoardSpecs {
 			}else {
 				if(searchKeyword.get("searchType").toString().equals("userId")) {
 					predicate.add(builder.like(root.get("user").get("userId"), "%"+ searchKeyword.get("searchText") + "%"));
+				}else if(searchKeyword.get("searchType").toString().equals("regDate")){
+					
+					String startDate = searchKeyword.get("searchText").toString().split("~")[0];
+					String endDate = searchKeyword.get("searchText").toString().split("~")[1];
+					
+					LocalDateTime start = LocalDateTime.of(Integer.parseInt(startDate.split("-")[0]), Integer.parseInt(startDate.split("-")[1]), Integer.parseInt(startDate.split("-")[2]), 0, 0);
+					LocalDateTime end = LocalDateTime.of(Integer.parseInt(endDate.split("-")[0]), Integer.parseInt(endDate.split("-")[1]), Integer.parseInt(endDate.split("-")[2]), 0, 0);
+					end = end.plusDays(1);
+					
+					Predicate predicateForRegdate = builder.between(root.get("regDate"), start, end);
+					predicate.add(predicateForRegdate);
+					
 				}else {
 					predicate.add(builder.like(root.get(searchKeyword.get("searchType").toString()), "%"+ searchKeyword.get("searchText") + "%"));
 				}
