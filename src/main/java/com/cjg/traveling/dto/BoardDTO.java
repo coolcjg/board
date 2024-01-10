@@ -19,7 +19,7 @@ public class BoardDTO {
 	
 	private String title;
 	
-	private String region;
+	private String region; 
 	
 	private String contents;
 	
