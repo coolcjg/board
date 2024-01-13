@@ -37,6 +37,7 @@ import com.cjg.traveling.repository.BoardRepository;
 import com.cjg.traveling.repository.MediaRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -240,7 +241,7 @@ public class BoardService {
 		map.put("code", "200");		
 		return map;	
 	}
-	
+
 	
 	private List<Map<String,String>> uploadFile(Board board, List<MultipartFile> fileList) {
 		List<Map<String,String>> result = new ArrayList();
@@ -296,6 +297,46 @@ public class BoardService {
 		}
 		
 		return result;
+	}
+	
+	public Map<String, Object> deleteBoard(HttpServletRequest request, BoardDTO boardDTO) throws Exception{
+		
+		Map<String, Object> result = new HashMap();
+		
+		String[] boardIdArray = boardDTO.getBoardIdArray().split(",");
+		
+		System.out.println("---------- : " + boardDTO.getBoardIdArray());
+		
+		for(String boardIdString : boardIdArray) {
+			
+			long boardId = Long.parseLong(boardIdString);
+			
+			// 미디어 삭제
+			List<Media> mediaList = mediaRepository.findByBoard_boardId(boardId);
+			for(Media media: mediaList) {
+				
+				File originalFile = new File(media.getOriginalFilePath() +  media.getOriginalFileName());
+				if(originalFile.isFile()) {
+					logger.info("FILE DELETE : " + originalFile.getAbsolutePath());
+					originalFile.delete();
+				}
+				
+				File encodingFile = new File(media.getEncodingFilePath() + media.getEncodingFileName());
+				if(encodingFile.isFile()) {
+					logger.info("FILE DELETE : " + encodingFile.getAbsolutePath());
+					encodingFile.delete();
+				}
+				
+			}
+
+			// 게시글 삭제
+			boardRepository.deleteByBoardId(boardId);
+		}
+		
+		result.put("status", HttpServletResponse.SC_OK);
+		result.put("message", "boards deleted");
+		return result;
+		
 	}
 
 }

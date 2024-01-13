@@ -55,10 +55,8 @@ public class Board {
 	private Date modDate;
 	
 	
-	@OneToMany(mappedBy="board")
+	@OneToMany(mappedBy="board", orphanRemoval = true)
 	private List<Media> mediaList;
-	
-	
 	
 	// 조회수
 	@Column(columnDefinition = "integer default 0")

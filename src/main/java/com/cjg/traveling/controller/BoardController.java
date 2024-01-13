@@ -3,9 +3,11 @@ package com.cjg.traveling.controller;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,11 +30,16 @@ public class BoardController {
 	@PostMapping(value ="/board")
 	public Map<String, Object> board(HttpServletRequest request, BoardDTO boardDTO) throws Exception{
 		return boardService.save(request, boardDTO);
-	}		
-	
+	}
+		
 	@GetMapping(value ="/board/{boardId}")
 	public Map<String, Object> board(HttpServletRequest request, @PathVariable("boardId") long boardId) throws Exception{
 		return boardService.findByBoardId(boardId);
-	}	
+	}
+	
+	@DeleteMapping(value ="/board")
+	public Map<String, Object> deleteBoard(HttpServletRequest request, @RequestBody BoardDTO boardDTO) throws Exception{
+		return boardService.deleteBoard(request, boardDTO);
+	}
 
 }

@@ -38,5 +38,6 @@ public class BoardDTO {
 	
 	private String searchText;
 	
+	private String boardIdArray;
 
 }

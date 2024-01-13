@@ -49,15 +49,16 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/board", "/board/list", "/board/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/user/**").permitAll()
 						.requestMatchers(HttpMethod.POST, "/user", "/user/login").permitAll()
-						.requestMatchers(HttpMethod.GET, "/jwt/**").permitAll()						
+						.requestMatchers(HttpMethod.GET, "/jwt/**").permitAll()
 					
 						.requestMatchers(HttpMethod.POST, "/board").authenticated()
-						.anyRequest().authenticated()													
+						.requestMatchers(HttpMethod.DELETE, "/board").authenticated()
+						.anyRequest().authenticated()
 			)
 			.exceptionHandling((exception) -> exception.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
 			.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 		
-		return http.build();		
+		return http.build();
 	}
 	
 	

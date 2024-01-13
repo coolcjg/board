@@ -15,6 +15,6 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
 	
 	Board findByBoardId(long boardId);
 	
+	void deleteByBoardId(long boardId);
 	
-
 }
