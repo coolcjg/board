@@ -160,6 +160,7 @@ public class BoardService {
 			mediaDTO.setMediaId(media.getMediaId());
 			mediaDTO.setType(media.getType());
 			mediaDTO.setStatus(media.getStatus());
+			mediaDTO.setOriginalFileClientName(media.getOriginalFileClientName());
 			
 			if(media.getStatus().equals("success")) {
 							

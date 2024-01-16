@@ -13,6 +13,7 @@ public class MediaDTO {
 	
 	private String originalFilePath;
 	private String originalFileName;
+	private String originalFileClientName;
 	
 	private String encodingFilePath;
 	private String encodingFileName;
@@ -28,3 +29,4 @@ public class MediaDTO {
 	private int percent;
 	
 }
+
