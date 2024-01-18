@@ -42,17 +42,21 @@ public class SecurityConfig {
 			.sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(
 					(authorizeRequests) -> authorizeRequests
-						.requestMatchers(HttpMethod.GET, "/api/**").permitAll()
-						.requestMatchers(HttpMethod.POST, "/api/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/upload/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/image/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/jwt/**").permitAll()
+						
+						.requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/**").permitAll()
+						
 						.requestMatchers(HttpMethod.GET, "/board", "/board/list", "/board/**").permitAll()
+						.requestMatchers(HttpMethod.POST, "/board").authenticated()
+						.requestMatchers(HttpMethod.DELETE, "/board").authenticated()						
+						
 						.requestMatchers(HttpMethod.GET, "/user/**").permitAll()
 						.requestMatchers(HttpMethod.POST, "/user", "/user/login").permitAll()
-						.requestMatchers(HttpMethod.GET, "/jwt/**").permitAll()
-					
-						.requestMatchers(HttpMethod.POST, "/board").authenticated()
-						.requestMatchers(HttpMethod.DELETE, "/board").authenticated()
+						
+						.requestMatchers(HttpMethod.DELETE, "/media/**").authenticated()
 						.anyRequest().authenticated()
 			)
 			.exceptionHandling((exception) -> exception.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))

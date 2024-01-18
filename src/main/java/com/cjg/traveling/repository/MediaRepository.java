@@ -14,4 +14,6 @@ public interface MediaRepository extends CrudRepository<Media, Long> {
 	
 	public List<Media> findByBoard_boardId(Long boardId);
 	
+	public List<Media> deleteByMediaId(Long mediaId);
+	
 }
