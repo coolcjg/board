@@ -29,6 +29,16 @@ public class MediaService {
 		
 		Map<String, Object> result = new HashMap();
 		
+		deleteMediaFile(mediaId);
+		
+		result.put("code", HttpServletResponse.SC_OK);
+		result.put("message", "deleted");
+		return result;
+	}
+	
+	
+	public void deleteMediaFile(Long mediaId) {
+		
 		Media media = mediaRepository.findByMediaId(mediaId);
 		
 		File originalFile = new File(media.getOriginalFilePath() + media.getOriginalFileName());
@@ -50,10 +60,6 @@ public class MediaService {
 		}
 		
 		mediaRepository.deleteByMediaId(mediaId);
-		
-		result.put("code", HttpServletResponse.SC_OK);
-		result.put("message", "deleted");
-		return result;
 	}
 
 }

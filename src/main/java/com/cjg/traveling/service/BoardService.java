@@ -52,6 +52,9 @@ public class BoardService {
 	private MediaRepository mediaRepository;
 	
 	@Autowired
+	private MediaService mediaService;
+	
+	@Autowired
 	private HttpRequestUtil httpRequestUtil;
 	
 	@Autowired
@@ -329,7 +332,6 @@ public class BoardService {
 		
 		String[] boardIdArray = boardDTO.getBoardIdArray().split(",");
 		
-		System.out.println("---------- : " + boardDTO.getBoardIdArray());
 		
 		for(String boardIdString : boardIdArray) {
 			
@@ -338,19 +340,7 @@ public class BoardService {
 			// 미디어 삭제
 			List<Media> mediaList = mediaRepository.findByBoard_boardId(boardId);
 			for(Media media: mediaList) {
-				
-				File originalFile = new File(media.getOriginalFilePath() +  media.getOriginalFileName());
-				if(originalFile.isFile()) {
-					logger.info("FILE DELETE : " + originalFile.getAbsolutePath());
-					originalFile.delete();
-				}
-				
-				File encodingFile = new File(media.getEncodingFilePath() + media.getEncodingFileName());
-				if(encodingFile.isFile()) {
-					logger.info("FILE DELETE : " + encodingFile.getAbsolutePath());
-					encodingFile.delete();
-				}
-				
+				mediaService.deleteMediaFile(media.getMediaId());
 			}
 
 			// 게시글 삭제
