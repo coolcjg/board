@@ -44,24 +44,24 @@ public class JwtService {
 				
 				if(user.getRefreshToken().equals(refreshToken)) {
 					String accessToken = jwt.createAccessToken(user);
-					result.put("status", HttpServletResponse.SC_OK);
+					result.put("code", HttpServletResponse.SC_OK);
 					result.put("accessToken", accessToken);
 				}
 			}
 		}catch(ExpiredJwtException e) {
-			result.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+			result.put("code", HttpServletResponse.SC_UNAUTHORIZED);
 			result.put("message", "ExpiredJwtException");			
 		}catch(UnsupportedJwtException e) {
-			result.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+			result.put("code", HttpServletResponse.SC_UNAUTHORIZED);
 			result.put("message", "UnsupportedJwtException");
 		}catch(MalformedJwtException e) {
-			result.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+			result.put("code", HttpServletResponse.SC_UNAUTHORIZED);
 			result.put("message", "MalformedJwtException");
 		}catch(SignatureException e) {
-			result.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+			result.put("code", HttpServletResponse.SC_UNAUTHORIZED);
 			result.put("message", "SignatureException");
 		}catch(IllegalArgumentException e) {
-			result.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+			result.put("code", HttpServletResponse.SC_UNAUTHORIZED);
 			result.put("message", "IllegalArgumentException");
 		}
 		

@@ -33,7 +33,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint{
 		
 		Gson gson = new Gson();
 		JsonObject jsonObject = new JsonObject();
-		jsonObject.addProperty("status", HttpServletResponse.SC_UNAUTHORIZED);
+		jsonObject.addProperty("code", HttpServletResponse.SC_UNAUTHORIZED);
 		jsonObject.addProperty("message", message);
 		response.getWriter().print(gson.toJson(jsonObject));
 	}
