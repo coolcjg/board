@@ -29,10 +29,10 @@ import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.domain.Board;
 import com.cjg.traveling.domain.Media;
 import com.cjg.traveling.domain.User;
-import com.cjg.traveling.dto.BoardDTO;
+import com.cjg.traveling.dto.BoardDto;
 import com.cjg.traveling.dto.BoardSpecs;
-import com.cjg.traveling.dto.MediaDTO;
-import com.cjg.traveling.dto.UserDTO;
+import com.cjg.traveling.dto.MediaDto;
+import com.cjg.traveling.dto.UserDto;
 import com.cjg.traveling.repository.BoardRepository;
 import com.cjg.traveling.repository.MediaRepository;
 
@@ -72,7 +72,7 @@ public class BoardService {
 		
 		Map<String, Object> result = new HashMap<String, Object>();
 		
-		BoardDTO boardDTO = new BoardDTO();
+		BoardDto boardDTO = new BoardDto();
 		int pageNumber=1;
 		
 		if(map.get("pageNumber") != null && !map.get("pageNumber").toString().equals("")) {
@@ -98,10 +98,10 @@ public class BoardService {
 			page = boardRepository.findAll(specification, pageRequest);
 		}
 		
-		List<BoardDTO> boardList = new ArrayList();
+		List<BoardDto> boardList = new ArrayList();
 		
 		for(Board board : page.getContent()) {
-			BoardDTO temp = new BoardDTO();
+			BoardDto temp = new BoardDto();
 			
 			temp.setBoardId(board.getBoardId());
 			temp.setContents(board.getContents());
@@ -110,7 +110,7 @@ public class BoardService {
 			temp.setTitle(board.getTitle());
 			temp.setView(board.getView());
 			
-			UserDTO userDTO = new UserDTO();
+			UserDto userDTO = new UserDto();
 			userDTO.setName(board.getUser().getName());
 			userDTO.setUserId(board.getUser().getUserId());
 			temp.setUserDTO(userDTO);
@@ -135,8 +135,8 @@ public class BoardService {
 	public Map<String, Object> findByBoardId(long boardId) {
 		
 		Map<String, Object> map = new HashMap();
-		BoardDTO boardDTO = new BoardDTO();
-		UserDTO userDTO = new UserDTO();
+		BoardDto boardDTO = new BoardDto();
+		UserDto userDTO = new UserDto();
 		Board board = boardRepository.findByBoardId(boardId);
 		
 		//조회수 통계 추가
@@ -153,9 +153,9 @@ public class BoardService {
 		
 		boardDTO.setUserDTO(userDTO);
 		
-		List<MediaDTO> mediaDTOList = new ArrayList<>();
+		List<MediaDto> mediaDTOList = new ArrayList<>();
 		for(Media media : board.getMediaList()) {
-			MediaDTO mediaDTO = new MediaDTO();
+			MediaDto mediaDTO = new MediaDto();
 			
 			mediaDTO.setMediaId(media.getMediaId());
 			mediaDTO.setType(media.getType());
@@ -204,7 +204,7 @@ public class BoardService {
 	}
 	
 	
-	public Map<String, Object> save(HttpServletRequest request, BoardDTO boardDTO) throws Exception{
+	public Map<String, Object> save(HttpServletRequest request, BoardDto boardDTO) throws Exception{
 		
 		Map<String, Object> map = new HashMap();
 		
@@ -222,9 +222,18 @@ public class BoardService {
 		
 		Board newBoard = boardRepository.save(board);
 		
+		checkUploadFile(boardDTO, newBoard);
+		
+		map.put("code", HttpServletResponse.SC_CREATED);
+		return map;	
+	}
+	
+	// 파일 업로드 체크
+	private void checkUploadFile(BoardDto boardDTO, Board board) throws Exception {
+		
 		//업로드 파일
 		if(boardDTO.getFiles() != null && boardDTO.getFiles().size() > 0) {
-			List<Map<String, String>>  mediaList = uploadFile(newBoard, boardDTO.getFiles());
+			List<Map<String, String>>  mediaList = uploadFile(board, boardDTO.getFiles());
 			
 			//업로드 서버 요청 전달
 			for(Map<String, String> media : mediaList) {
@@ -237,13 +246,11 @@ public class BoardService {
 				logger.info("postResult");
 				logger.info(postResult);
 			}			
-		}
+		}		
 		
-		map.put("code", "200");		
-		return map;	
 	}
 
-	
+	// 파일 업로드	
 	private List<Map<String,String>> uploadFile(Board board, List<MultipartFile> fileList) {
 		List<Map<String,String>> result = new ArrayList();
 		
@@ -300,7 +307,23 @@ public class BoardService {
 		return result;
 	}
 	
-	public Map<String, Object> deleteBoard(HttpServletRequest request, BoardDTO boardDTO) throws Exception{
+	public Map<String, Object> updateBoard(BoardDto boardDTO) throws Exception{
+		
+		Map<String, Object> result = new HashMap();
+		
+		Board board = boardRepository.findByBoardId(boardDTO.getBoardId());
+		board.setTitle(boardDTO.getTitle());
+		board.setRegion(boardDTO.getRegion());
+		board.setContents(boardDTO.getContents());
+				
+		checkUploadFile(boardDTO, board);
+		
+		result.put("code", HttpServletResponse.SC_OK);
+		result.put("message", "updated");
+		return result;
+	}
+	
+	public Map<String, Object> deleteBoard(HttpServletRequest request, BoardDto boardDTO) throws Exception{
 		
 		Map<String, Object> result = new HashMap();
 		

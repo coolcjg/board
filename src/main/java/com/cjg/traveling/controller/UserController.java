@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cjg.traveling.dto.UserDTO;
+import com.cjg.traveling.dto.UserDto;
 import com.cjg.traveling.dto.UserDtoInsert;
 import com.cjg.traveling.dto.UserDtoLogin;
 import com.cjg.traveling.service.UserService;
@@ -29,12 +29,12 @@ public class UserController {
 	}
 	
 	@PostMapping("/user")
-	public Map<String, Object> insertUser(@RequestBody @Validated(UserDtoInsert.class) UserDTO user) {
+	public Map<String, Object> insertUser(@RequestBody @Validated(UserDtoInsert.class) UserDto user) {
 		return userService.insertUser(user);
 	}
 	
 	@PostMapping("/user/login")
-	public Map<String, Object> login(HttpServletResponse response, @RequestBody @Validated(UserDtoLogin.class) UserDTO user) {
+	public Map<String, Object> login(HttpServletResponse response, @RequestBody @Validated(UserDtoLogin.class) UserDto user) {
 		return userService.login(user, response);
 	}	
 	

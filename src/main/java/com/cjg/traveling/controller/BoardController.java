@@ -3,15 +3,19 @@ package com.cjg.traveling.controller;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cjg.traveling.dto.BoardDTO;
+import com.cjg.traveling.dto.BoardDto;
+import com.cjg.traveling.dto.BoardDtoUpdate;
+import com.cjg.traveling.dto.UserDto;
 import com.cjg.traveling.service.BoardService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +32,7 @@ public class BoardController {
 	}
 	
 	@PostMapping(value ="/board")
-	public Map<String, Object> board(HttpServletRequest request, BoardDTO boardDTO) throws Exception{
+	public Map<String, Object> board(HttpServletRequest request, BoardDto boardDTO) throws Exception{
 		return boardService.save(request, boardDTO);
 	}
 		
@@ -37,8 +41,13 @@ public class BoardController {
 		return boardService.findByBoardId(boardId);
 	}
 	
+	@PutMapping(value ="/board/{boardId}")
+	public Map<String, Object> updateBoard(HttpServletRequest request, @Validated(BoardDtoUpdate.class) BoardDto boardDto) throws Exception{
+		return boardService.updateBoard(boardDto);
+	}	
+	
 	@DeleteMapping(value ="/board")
-	public Map<String, Object> deleteBoard(HttpServletRequest request, @RequestBody BoardDTO boardDTO) throws Exception{
+	public Map<String, Object> deleteBoard(HttpServletRequest request, @RequestBody BoardDto boardDTO) throws Exception{
 		return boardService.deleteBoard(request, boardDTO);
 	}
 

@@ -3,7 +3,7 @@ package com.cjg.traveling.dto;
 import lombok.Data;
 
 @Data
-public class MediaDTO {
+public class MediaDto {
 	
 	private Long mediaId;
 	

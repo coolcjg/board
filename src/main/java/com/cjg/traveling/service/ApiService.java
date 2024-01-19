@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cjg.traveling.domain.Media;
-import com.cjg.traveling.dto.MediaDTO;
+import com.cjg.traveling.dto.MediaDto;
 import com.cjg.traveling.repository.MediaRepository;
 
 @Service
@@ -23,7 +23,7 @@ public class ApiService {
 	@Autowired
 	MediaRepository mediaRepository;
 	
-	public Map<String, Object> encodingResult(MediaDTO dto){
+	public Map<String, Object> encodingResult(MediaDto dto){
 		
 		logger.info("encodingResult dto : " + dto.toString());
 		Media media = mediaRepository.findByMediaId(dto.getMediaId());

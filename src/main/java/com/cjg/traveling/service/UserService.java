@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cjg.traveling.common.Encrypt;
 import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.domain.User;
-import com.cjg.traveling.dto.UserDTO;
+import com.cjg.traveling.dto.UserDto;
 import com.cjg.traveling.repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -53,7 +53,7 @@ public class UserService {
 	
 	
 	// 회원 등록
-	public Map<String, Object> insertUser(UserDTO userDTO) {
+	public Map<String, Object> insertUser(UserDto userDTO) {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
@@ -78,7 +78,7 @@ public class UserService {
 	}
 	
 	// 로그인
-	public Map<String, Object> login(UserDTO userDTO, HttpServletResponse response) {
+	public Map<String, Object> login(UserDto userDTO, HttpServletResponse response) {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
