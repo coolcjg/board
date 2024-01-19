@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cjg.traveling.dto.BoardDto;
+import com.cjg.traveling.dto.BoardDtoInsert;
 import com.cjg.traveling.dto.BoardDtoUpdate;
-import com.cjg.traveling.dto.UserDto;
 import com.cjg.traveling.service.BoardService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +32,7 @@ public class BoardController {
 	}
 	
 	@PostMapping(value ="/board")
-	public Map<String, Object> board(HttpServletRequest request, BoardDto boardDTO) throws Exception{
+	public Map<String, Object> board(HttpServletRequest request, @Validated(BoardDtoInsert.class) BoardDto boardDTO) throws Exception{
 		return boardService.save(request, boardDTO);
 	}
 		
