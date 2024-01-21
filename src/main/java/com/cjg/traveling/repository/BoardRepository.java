@@ -8,9 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import com.cjg.traveling.domain.Board;
 
 public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecificationExecutor<Board> {
-	
-	Page<Board> findPageBy(Pageable paging);
-	
+		
 	Board save(Board board);
 	
 	Board findByBoardId(long boardId);
