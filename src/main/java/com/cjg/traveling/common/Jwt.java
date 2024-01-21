@@ -62,7 +62,7 @@ public class Jwt {
 		
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date());
-		cal.add(Calendar.MINUTE, 1);		
+		cal.add(Calendar.MINUTE, 30);		
 		
 		String token = Jwts.builder()
 				.setClaims(payloads)

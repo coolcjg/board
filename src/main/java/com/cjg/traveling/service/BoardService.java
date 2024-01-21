@@ -142,6 +142,12 @@ public class BoardService {
 		UserDto userDTO = new UserDto();
 		Board board = boardRepository.findByBoardId(boardId);
 		
+		if(board == null) {
+			map.put("code", 500);
+			map.put("message", "board is null");			
+			return map; 
+		}
+		
 		//조회수 통계 추가
 		board.setView(board.getView()+1);
 		
@@ -202,6 +208,7 @@ public class BoardService {
 		
 		map.put("board", boardDTO);
 		map.put("code", 200);
+		map.put("message", "success");
 		
 		return map;
 	}
@@ -347,7 +354,7 @@ public class BoardService {
 			boardRepository.deleteByBoardId(boardId);
 		}
 		
-		result.put("status", HttpServletResponse.SC_OK);
+		result.put("code", HttpServletResponse.SC_OK);
 		result.put("message", "boards deleted");
 		return result;
 		
