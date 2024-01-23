@@ -21,12 +21,9 @@ public class BoardRepositoryTest {
 	
 	@Test
 	void save() {
-		
-		boardRepository.deleteAll();
-		userRepository.deleteAll();
-		
+				
 		User user = new User();
-		user.setUserId("testUser");
+		user.setUserId("---");
 		userRepository.save(user);
 				
 		Board board = new Board();
@@ -37,6 +34,39 @@ public class BoardRepositoryTest {
 		Assertions.assertThat(board).isEqualTo(createdBoard);
 	}
 	
+	@Test
+	void findByBoardId() {
+		
+		User user = new User();
+		user.setUserId("---");
+		userRepository.save(user);
+				
+		Board board = new Board();
+		board.setUser(user);
+		
+		Board createdBoard = boardRepository.save(board);
+		
+		Board findBoard = boardRepository.findByBoardId(createdBoard.getBoardId());
+		
+		Assertions.assertThat(createdBoard).isEqualTo(findBoard);
+	}	
 	
-
+	@Test
+	void deleteByBoardId() {
+		
+		User user = new User();
+		user.setUserId("---");
+		userRepository.save(user);
+				
+		Board board = new Board();
+		board.setUser(user);
+		
+		Board createdBoard = boardRepository.save(board);
+		boardRepository.deleteByBoardId(createdBoard.getBoardId());
+		
+		Board findBoard = boardRepository.findByBoardId(createdBoard.getBoardId());
+		
+		Assertions.assertThat(findBoard).isNull();		
+	}
+	
 }
