@@ -326,16 +326,16 @@ public class BoardService {
 		return result;
 	}
 	
-	public Map<String, Object> updateBoard(BoardDto boardDTO) throws Exception{
+	public Map<String, Object> updateBoard(BoardDto boardDto) throws Exception{
 		
 		Map<String, Object> result = new HashMap();
 		
-		Board board = boardRepository.findByBoardId(boardDTO.getBoardId());
-		board.setTitle(boardDTO.getTitle());
-		board.setRegion(boardDTO.getRegion());
-		board.setContents(boardDTO.getContents());
+		Board board = boardRepository.findByBoardId(boardDto.getBoardId());
+		board.setTitle(boardDto.getTitle());
+		board.setRegion(boardDto.getRegion());
+		board.setContents(boardDto.getContents());
 				
-		checkUploadFile(boardDTO, board);
+		checkUploadFile(boardDto, board);
 		
 		result.put("code", HttpServletResponse.SC_OK);
 		result.put("message", "updated");

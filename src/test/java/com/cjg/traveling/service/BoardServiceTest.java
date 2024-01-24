@@ -410,7 +410,7 @@ public class BoardServiceTest {
 	}
 	
 	@Test
-	public void save(){
+	public void save() throws Exception{
 		
 		//given		
 		UserDto userDtoMock = new UserDto();
@@ -444,7 +444,8 @@ public class BoardServiceTest {
 		multiList.add(multiMock2);
 		multiList.add(multiMock3);
 		multiList.add(multiMock4);
-
+		
+		boardDto1.setFiles(multiList);
 		
 		//첨부 미디어가 없을 때
 		BoardDto boardDto2 = new BoardDto();
@@ -474,11 +475,7 @@ public class BoardServiceTest {
 			
 			Assertions.assertThat(newBoard).isEqualTo(board);
 			
-			try{
-				checkUploadFile(boardDto, newBoard);
-			}catch(Exception e) {
-				
-			}
+			checkUploadFile(boardDto, newBoard);
 			
 		}
 		
@@ -498,6 +495,8 @@ public class BoardServiceTest {
 				encodingParam.put("type", media.get("type"));
 				encodingParam.put("originalFile", media.get("originalFile"));
 				encodingParam.put("returnUrl", encodeReturnUrl);
+				
+				given(httpRequestUtil.encodingRequest(encodingParam)).willReturn("success");
 				String postResult = httpRequestUtil.encodingRequest(encodingParam);
 				logger.info("postResult");
 				logger.info(postResult);
@@ -546,6 +545,8 @@ public class BoardServiceTest {
 				media.setOriginalFileClientName(mf.getOriginalFilename());
 				media.setOriginalFileSize(mf.getSize());			
 				
+				given(mediaRepository.save(media)).willReturn(media);
+				
 				Media newMedia = mediaRepository.save(media);
 				
 				if(media.getType().equals("video") || media.getType().equals("audio") || media.getType().equals("image")) {
@@ -562,8 +563,61 @@ public class BoardServiceTest {
 		}
 		
 		return result;
-	}	
+	}
 	
-	
+	@Test
+	public void updateBoard() throws Exception{
+		
+		BoardDto boardDto1 = new BoardDto();
+		boardDto1.setBoardId(1l);
+		
+		BoardDto boardDto2 = new BoardDto();
+		boardDto2.setBoardId(2l);
+				
+		List<MultipartFile> multiList = new ArrayList();
+		
+		//동영상
+		MockMultipartFile multiMock1 = new MockMultipartFile("video", "video.mp4", "video/mp4", "thumbnail".getBytes());
+		
+		//오디오
+		MockMultipartFile multiMock2 = new MockMultipartFile("audio", "audio.ogg", "audio/ogg", "thumbnail".getBytes());
+		
+		//이미지
+		MockMultipartFile multiMock3 = new MockMultipartFile("video", "image.jpg", "image/jpg", "thumbnail".getBytes());
+		
+		//문서
+		MockMultipartFile multiMock4 = new MockMultipartFile("video", "document.pdf", "application/pdf", "thumbnail".getBytes());
+		
+		multiList.add(multiMock1);
+		multiList.add(multiMock2);
+		multiList.add(multiMock3);
+		multiList.add(multiMock4);
+		
+		boardDto2.setFiles(multiList);
+		
+		List<BoardDto> paramList = new ArrayList();
+		paramList.add(boardDto1);
+		paramList.add(boardDto2);
+		
+		for(BoardDto boardDto : paramList) {
 
+			//given
+			Board boardMock = new Board();
+			boardMock.setBoardId(boardDto.getBoardId());
+			boardMock.setTitle("testTitle");
+			boardMock.setRegion("경기");
+			boardMock.setContents("test");
+			
+			given(boardRepository.findByBoardId(boardDto.getBoardId())).willReturn(boardMock);
+			
+			Board board = boardRepository.findByBoardId(boardDto.getBoardId());
+			board.setTitle(boardDto.getTitle());
+			board.setRegion(boardDto.getRegion());
+			board.setContents(boardDto.getContents());
+					
+			checkUploadFile(boardDto, board);
+			
+		}
+		
+	}
 }
