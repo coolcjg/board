@@ -142,6 +142,9 @@ public class BoardService {
 		UserDto userDTO = new UserDto();
 		Board board = boardRepository.findByBoardId(boardId);
 		
+		System.out.println("board----");
+		System.out.println(board);
+		
 		if(board == null) {
 			map.put("code", 500);
 			map.put("message", "board is null");			
@@ -163,6 +166,10 @@ public class BoardService {
 		boardDTO.setUserDTO(userDTO);
 		
 		List<MediaDto> mediaDTOList = new ArrayList<>();
+		
+		System.out.println("boardMediaList---");
+		System.out.println(board.getMediaList());
+		
 		for(Media media : board.getMediaList()) {
 			MediaDto mediaDTO = new MediaDto();
 			
@@ -214,7 +221,7 @@ public class BoardService {
 	}
 	
 	
-	public Map<String, Object> save(HttpServletRequest request, BoardDto boardDTO) throws Exception{
+	public Map<String, Object> save(HttpServletRequest request, BoardDto boardDto) throws Exception{
 		
 		Map<String, Object> map = new HashMap();
 		
@@ -226,13 +233,13 @@ public class BoardService {
 		
 		Board board = new Board();
 		board.setUser(user);
-		board.setTitle(boardDTO.getTitle());
-		board.setRegion(boardDTO.getRegion());
-		board.setContents(boardDTO.getContents());
+		board.setTitle(boardDto.getTitle());
+		board.setRegion(boardDto.getRegion());
+		board.setContents(boardDto.getContents());
 		
 		Board newBoard = boardRepository.save(board);
 		
-		checkUploadFile(boardDTO, newBoard);
+		checkUploadFile(boardDto, newBoard);
 		
 		map.put("code", HttpServletResponse.SC_CREATED);
 		return map;	
@@ -300,6 +307,8 @@ public class BoardService {
 				media.setOriginalFileSize(mf.getSize());			
 				
 				Media newMedia = mediaRepository.save(media);
+				System.out.println("new Media");
+				System.out.println(newMedia);
 				
 				if(media.getType().equals("video") || media.getType().equals("audio") || media.getType().equals("image")) {
 					Map<String, String> mediaMap = new HashMap();
