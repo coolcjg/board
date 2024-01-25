@@ -35,10 +35,8 @@ public class MediaService {
 		result.put("message", "deleted");
 		return result;
 	}
-	
-	
+
 	public void deleteMediaFile(Long mediaId) {
-		
 		Media media = mediaRepository.findByMediaId(mediaId);
 		
 		File originalFile = new File(media.getOriginalFilePath() + media.getOriginalFileName());
@@ -60,6 +58,14 @@ public class MediaService {
 		}
 		
 		mediaRepository.deleteByMediaId(mediaId);
+		
+	}
+	
+	public void deleteMediaFile(String mediaId) {
+		
 	}
 
+	
+	
+	
 }

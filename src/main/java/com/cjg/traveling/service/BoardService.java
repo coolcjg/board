@@ -342,11 +342,11 @@ public class BoardService {
 		return result;
 	}
 	
-	public Map<String, Object> deleteBoard(HttpServletRequest request, BoardDto boardDTO) throws Exception{
+	public Map<String, Object> deleteBoard(HttpServletRequest request, BoardDto boardDto) throws Exception{
 		
 		Map<String, Object> result = new HashMap();
 		
-		String[] boardIdArray = boardDTO.getBoardIdArray().split(",");
+		String[] boardIdArray = boardDto.getBoardIdArray().split(",");
 		
 		
 		for(String boardIdString : boardIdArray) {
