@@ -61,11 +61,4 @@ public class MediaService {
 		
 	}
 	
-	public void deleteMediaFile(String mediaId) {
-		
-	}
-
-	
-	
-	
 }
