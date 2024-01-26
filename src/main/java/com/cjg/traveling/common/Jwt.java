@@ -108,14 +108,12 @@ public class Jwt {
 		
 	public boolean validateJwtToken(String token) {
 		
-		System.out.println("aaddd");
-		
-		
 		Jws<Claims> claims = Jwts.parserBuilder()
 				.setSigningKey(SECRET_KEY.getBytes())
 				.build()
 				.parseClaimsJws(token);
 		return true;
+		
 	}
 	
 

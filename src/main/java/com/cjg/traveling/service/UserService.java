@@ -90,8 +90,6 @@ public class UserService {
 			
 			if(user.getPassword().equals(encrypt.getEncrypt(userDTO.getPassword(), user.getSalt()))) {
 				
-
-				
 				String accessToken = jwt.createAccessToken(user);
 				String refreshToken = jwt.createRefreshToken(user);
 				
@@ -109,9 +107,6 @@ public class UserService {
 		}
 		
 		return map;
-	}	
+	}
 	
-	
-	
-
 }
