@@ -43,5 +43,7 @@ public class BoardDto {
 	private String searchText;
 	
 	private String boardIdArray;
+	
+	private String opinion;
 
 }

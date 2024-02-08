@@ -368,5 +368,15 @@ public class BoardService {
 		return result;
 		
 	}
+	
+	public Map<String, Object> like(HttpServletRequest request, BoardDto boardDto) throws Exception{
+		Map<String, Object> result = new HashMap();
+		
+		logger.info("11111111 : " + boardDto);
+		
+		result.put("code", HttpServletResponse.SC_OK);
+		result.put("message", "like completed");
+		return result;
+	}
 
 }

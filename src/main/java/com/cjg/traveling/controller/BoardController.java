@@ -50,5 +50,10 @@ public class BoardController {
 	public Map<String, Object> deleteBoard(HttpServletRequest request, @RequestBody BoardDto boardDTO) throws Exception{
 		return boardService.deleteBoard(request, boardDTO);
 	}
+	
+	@PostMapping(value ="/board/like")
+	public Map<String, Object> like(HttpServletRequest request, @RequestBody BoardDto boardDTO) throws Exception{
+		return boardService.like(request, boardDTO);
+	}	
 
 }
