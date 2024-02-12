@@ -39,6 +39,7 @@ import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.domain.Board;
 import com.cjg.traveling.domain.Media;
+import com.cjg.traveling.domain.Opinion;
 import com.cjg.traveling.domain.User;
 import com.cjg.traveling.dto.BoardDto;
 import com.cjg.traveling.dto.BoardSpecs;
@@ -46,6 +47,7 @@ import com.cjg.traveling.dto.MediaDto;
 import com.cjg.traveling.dto.UserDto;
 import com.cjg.traveling.repository.BoardRepository;
 import com.cjg.traveling.repository.MediaRepository;
+import com.cjg.traveling.repository.OpinionRepository;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -59,6 +61,9 @@ public class BoardServiceTest {
 	
 	@Mock
 	private MediaRepository mediaRepository;
+	
+	@Mock
+	private OpinionRepository opinionRepository;	
 	
 	@InjectMocks
 	private MediaService mediaService;
@@ -718,5 +723,81 @@ public class BoardServiceTest {
 		
 		result.put("code", HttpServletResponse.SC_OK);
 		result.put("message", "boards deleted");
+	}
+	
+	@Test
+	public void like() throws Exception{
+		
+		UserDto userDto = new UserDto();
+		userDto.setUserId("testId");
+		Long boardId = 1l;
+		
+		BoardDto boardDto1 = new BoardDto();
+		boardDto1.setUserDTO(userDto);
+		boardDto1.setBoardId(boardId);
+		boardDto1.setOpinion("Y");
+		
+		BoardDto boardDto2 = new BoardDto();
+		boardDto2.setUserDTO(userDto);
+		boardDto2.setBoardId(boardId);
+		boardDto2.setOpinion("N");
+		
+		//파라미터 리스트
+		List<BoardDto> testList = new ArrayList();
+		testList.add(boardDto1);
+		testList.add(boardDto2);
+
+		for(BoardDto temp : testList) {
+			
+			// CASE1 : 좋아요 정보가 없을 때
+			given(opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserDTO().getUserId())).willReturn(null);
+			Opinion opinion = opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserDTO().getUserId());
+			
+			if(opinion == null) {
+				
+				User user = new User();
+				user.setUserId(temp.getUserDTO().getUserId());
+				
+				Board board = new Board();
+				board.setBoardId(temp.getBoardId());
+				
+				Opinion tempOpinion = new Opinion();
+				tempOpinion.setUser(user);
+				tempOpinion.setBoard(board);
+				tempOpinion.setOpinion(temp.getOpinion());
+				
+				given(opinionRepository.save(tempOpinion)).willReturn(tempOpinion);
+				Opinion newOpinion = opinionRepository.save(tempOpinion);
+				
+				Assertions.assertThat(newOpinion.getOpinion()).isEqualTo(tempOpinion.getOpinion());
+
+			}
+			
+			
+			// CASE2 : 좋아요 정보가 있을 때
+			User user2 = new User();
+			user2.setUserId(temp.getUserDTO().getUserId());
+			
+			Board board2 = new Board();
+			board2.setBoardId(temp.getBoardId());			
+			
+			Opinion tempOpinion2 = new Opinion();
+			tempOpinion2.setUser(user2);
+			tempOpinion2.setBoard(board2);
+			tempOpinion2.setOpinion("Z");
+			
+			given(opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserDTO().getUserId())).willReturn(tempOpinion2);
+			Opinion opinion2 = opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserDTO().getUserId());
+			opinion2.setOpinion(temp.getOpinion());
+			
+			opinionRepository.save(opinion2);
+			
+			given(opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserDTO().getUserId())).willReturn(opinion2);
+			Opinion opinion3 = opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserDTO().getUserId());			
+			
+			
+			Assertions.assertThat(opinion3.getOpinion()).isEqualTo(opinion2.getOpinion());			
+			
+		}
 	}
 }

@@ -1,5 +1,6 @@
 package com.cjg.traveling.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,4 +26,7 @@ public class Opinion {
 	@ManyToOne
 	@JoinColumn(name = "userId")
 	User user;
+	
+	@Column(nullable = false, length = 1)
+	private String opinion;
 }
