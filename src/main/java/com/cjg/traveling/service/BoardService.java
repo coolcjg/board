@@ -28,13 +28,17 @@ import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.domain.Board;
 import com.cjg.traveling.domain.Media;
+import com.cjg.traveling.domain.Opinion;
 import com.cjg.traveling.domain.User;
 import com.cjg.traveling.dto.BoardDto;
 import com.cjg.traveling.dto.BoardSpecs;
 import com.cjg.traveling.dto.MediaDto;
+import com.cjg.traveling.dto.OpinionDto;
 import com.cjg.traveling.dto.UserDto;
 import com.cjg.traveling.repository.BoardRepository;
 import com.cjg.traveling.repository.MediaRepository;
+import com.cjg.traveling.repository.OpinionRepository;
+import com.cjg.traveling.repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -50,6 +54,12 @@ public class BoardService {
 	
 	@Autowired
 	private MediaRepository mediaRepository;
+	
+	@Autowired
+	private OpinionRepository opinionRepository;
+	
+	@Autowired
+	private UserRepository userRepository;	
 	
 	@Autowired
 	private MediaService mediaService;
@@ -369,14 +379,64 @@ public class BoardService {
 		
 	}
 	
-	public Map<String, Object> like(HttpServletRequest request, BoardDto boardDto) throws Exception{
+	public Map<String, Object> postOpinion(BoardDto boardDto) throws Exception{
 		Map<String, Object> result = new HashMap();
 		
-		logger.info("11111111 : " + boardDto);
+		Opinion opinion = opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
+		
+		if(opinion == null) {
+			User user = userRepository.findByUserId(boardDto.getUserId());
+			Board board = boardRepository.findByBoardId(boardDto.getBoardId());
+						
+			Opinion newOpinion = new Opinion();
+			newOpinion.setUser(user);
+			newOpinion.setBoard(board);
+			newOpinion.setOpinion(boardDto.getOpinion());
+			opinionRepository.save(newOpinion);			
+		}else {
+			opinion.setOpinion(boardDto.getOpinion());
+		}
 		
 		result.put("code", HttpServletResponse.SC_OK);
-		result.put("message", "like completed");
+		result.put("message", "post opinion completed");
 		return result;
 	}
+	
 
+	public Map<String, Object> deleteOpinion(BoardDto boardDto) throws Exception{
+		Map<String, Object> result = new HashMap();
+		
+		Long deleteResult = opinionRepository.deleteByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
+		
+		if(deleteResult == 1) {
+			result.put("code", HttpServletResponse.SC_OK);
+			result.put("message", "delete opinion completed");
+		}else {
+			result.put("code", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			result.put("message", "delete opinion fail");			
+		}
+
+		return result;		
+		
+	}
+	
+	public Map<String, Object> getUserOpinion(BoardDto boardDto) throws Exception{
+		Map<String, Object> result = new HashMap();
+		
+		Opinion opinion = opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
+		
+		if(opinion == null) {
+			result.put("opinion", "");
+		}else {
+			OpinionDto opinionDto = new OpinionDto();
+			opinionDto.setBoardId(opinion.getBoard().getBoardId());
+			opinionDto.setUserId(opinion.getUser().getUserId());
+			opinionDto.setOpinion(opinion.getOpinion());
+			result.put("opinion", opinionDto);
+		}
+		
+		result.put("code", HttpServletResponse.SC_OK);
+		result.put("message", "get opinion completed");
+		return result;		
+	}
 }

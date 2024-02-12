@@ -32,6 +32,7 @@ public class BoardDto {
 	private List<MediaDto> mediaDTOList;
 	
 	private UserDto userDTO;
+	private String userId;
 	
 	private int view;
 	

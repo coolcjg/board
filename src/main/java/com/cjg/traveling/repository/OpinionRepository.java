@@ -8,5 +8,7 @@ import com.cjg.traveling.domain.Opinion;
 public interface OpinionRepository extends JpaRepository<Opinion, Long>, JpaSpecificationExecutor<Opinion> {
 	
 	Opinion findByBoard_boardIdAndUser_userId(Long boardId, String userId);
+	
+	Long deleteByBoard_boardIdAndUser_userId(Long boardId, String userId);
 
 }

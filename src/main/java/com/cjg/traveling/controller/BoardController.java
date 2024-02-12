@@ -51,9 +51,19 @@ public class BoardController {
 		return boardService.deleteBoard(request, boardDTO);
 	}
 	
-	@PostMapping(value ="/board/like")
-	public Map<String, Object> like(HttpServletRequest request, @RequestBody BoardDto boardDTO) throws Exception{
-		return boardService.like(request, boardDTO);
-	}	
-
+	@PostMapping(value ="/board/opinion")
+	public Map<String, Object> postOpinion(@RequestBody BoardDto boardDTO) throws Exception{
+		return boardService.postOpinion(boardDTO);
+	}
+	
+	@DeleteMapping(value ="/board/opinion")
+	public Map<String, Object> deleteOpinion(@RequestBody BoardDto boardDTO) throws Exception{
+		return boardService.deleteOpinion(boardDTO);
+	}
+	
+	@PostMapping(value ="/board/userOpinion")
+	public Map<String, Object> getUserOpinion(@RequestBody BoardDto boardDTO) throws Exception{
+		return boardService.getUserOpinion(boardDTO);
+	}
+	
 }

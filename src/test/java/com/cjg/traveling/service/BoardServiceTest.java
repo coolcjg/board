@@ -1,5 +1,6 @@
 package com.cjg.traveling.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 import java.io.File;
@@ -44,10 +45,12 @@ import com.cjg.traveling.domain.User;
 import com.cjg.traveling.dto.BoardDto;
 import com.cjg.traveling.dto.BoardSpecs;
 import com.cjg.traveling.dto.MediaDto;
+import com.cjg.traveling.dto.OpinionDto;
 import com.cjg.traveling.dto.UserDto;
 import com.cjg.traveling.repository.BoardRepository;
 import com.cjg.traveling.repository.MediaRepository;
 import com.cjg.traveling.repository.OpinionRepository;
+import com.cjg.traveling.repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -63,7 +66,10 @@ public class BoardServiceTest {
 	private MediaRepository mediaRepository;
 	
 	@Mock
-	private OpinionRepository opinionRepository;	
+	private OpinionRepository opinionRepository;
+	
+	@Mock
+	private UserRepository userRepository;
 	
 	@InjectMocks
 	private MediaService mediaService;
@@ -726,11 +732,14 @@ public class BoardServiceTest {
 	}
 	
 	@Test
-	public void like() throws Exception{
+	public void postOpinion() throws Exception{
 		
 		UserDto userDto = new UserDto();
 		userDto.setUserId("testId");
 		Long boardId = 1l;
+		
+		User userMock = new User();
+		userMock.setUserId("testId");
 		
 		BoardDto boardDto1 = new BoardDto();
 		boardDto1.setUserDTO(userDto);
@@ -748,56 +757,111 @@ public class BoardServiceTest {
 		testList.add(boardDto2);
 
 		for(BoardDto temp : testList) {
-			
-			// CASE1 : 좋아요 정보가 없을 때
-			given(opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserDTO().getUserId())).willReturn(null);
-			Opinion opinion = opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserDTO().getUserId());
-			
-			if(opinion == null) {
-				
-				User user = new User();
-				user.setUserId(temp.getUserDTO().getUserId());
-				
-				Board board = new Board();
-				board.setBoardId(temp.getBoardId());
-				
-				Opinion tempOpinion = new Opinion();
-				tempOpinion.setUser(user);
-				tempOpinion.setBoard(board);
-				tempOpinion.setOpinion(temp.getOpinion());
-				
-				given(opinionRepository.save(tempOpinion)).willReturn(tempOpinion);
-				Opinion newOpinion = opinionRepository.save(tempOpinion);
-				
-				Assertions.assertThat(newOpinion.getOpinion()).isEqualTo(tempOpinion.getOpinion());
 
-			}
+			// case1 : 좋아요가 저장되어있지 않을 때
+			given(opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserId())).willReturn(null);
+			Opinion opinion = opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserId());
+
+			given(userRepository.findByUserId(temp.getUserId())).willReturn(userMock);
+			User user = userRepository.findByUserId(temp.getUserId());
+			
+			Board boardMock = new Board();
+			boardMock.setBoardId(temp.getBoardId());
+			given(boardRepository.findByBoardId(temp.getBoardId())).willReturn(boardMock);
+			Board board = boardRepository.findByBoardId(temp.getBoardId());
+						
+			Opinion newOpinion = new Opinion();
+			newOpinion.setUser(user);
+			newOpinion.setBoard(board);
+			newOpinion.setOpinion(temp.getOpinion());
+			
+			given(opinionRepository.save(newOpinion)).willReturn(newOpinion);
+			Opinion savedOpinion = opinionRepository.save(newOpinion);
+			
+			Assertions.assertThat(savedOpinion).isEqualTo(newOpinion);
 			
 			
-			// CASE2 : 좋아요 정보가 있을 때
-			User user2 = new User();
-			user2.setUserId(temp.getUserDTO().getUserId());
+			// case2 :  이미 저장되어 있을 때 
+			Opinion opinionMock =  new Opinion();
+			opinionMock.setUser(userMock);
+			opinionMock.setBoard(boardMock);
+			opinionMock.setOpinion("Z");
 			
-			Board board2 = new Board();
-			board2.setBoardId(temp.getBoardId());			
+			given(opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserId())).willReturn(opinionMock);
+			Opinion savedOpinion2 = opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserId());
 			
-			Opinion tempOpinion2 = new Opinion();
-			tempOpinion2.setUser(user2);
-			tempOpinion2.setBoard(board2);
-			tempOpinion2.setOpinion("Z");
-			
-			given(opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserDTO().getUserId())).willReturn(tempOpinion2);
-			Opinion opinion2 = opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserDTO().getUserId());
-			opinion2.setOpinion(temp.getOpinion());
-			
-			opinionRepository.save(opinion2);
-			
-			given(opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserDTO().getUserId())).willReturn(opinion2);
-			Opinion opinion3 = opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserDTO().getUserId());			
-			
-			
-			Assertions.assertThat(opinion3.getOpinion()).isEqualTo(opinion2.getOpinion());			
+			savedOpinion2.setOpinion(temp.getOpinion());
 			
 		}
 	}
+	
+	@Test
+	public void deleteOpinion() throws Exception{
+		
+		BoardDto boardDto = new BoardDto();
+		boardDto.setBoardId(1l);
+		boardDto.setUserId("testId");
+		
+		given(opinionRepository.deleteByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(1L);
+		Long deleteResult = opinionRepository.deleteByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
+		
+		Assertions.assertThat(deleteResult).isEqualTo(1L);
+		
+	}
+	
+	
+	@Test
+	public void getUserOpinion() throws Exception{
+		Map<String, Object> result = new HashMap();
+		
+		BoardDto boardDto = new BoardDto();
+		boardDto.setBoardId(1L);
+		boardDto.setUserId("testId");
+		
+		Opinion opinionMock = new Opinion();
+		
+		User userMock = new User();
+		userMock.setUserId("testId");
+		
+		Board boardMock = new Board();
+		boardMock.setBoardId(1l);
+		
+		opinionMock.setUser(userMock);
+		opinionMock.setBoard(boardMock);
+		opinionMock.setOpinion("Y");
+		
+		given(opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(null);
+		Opinion opinion = opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
+		
+		if(opinion == null) {
+			result.put("opinion", "");
+		}else {
+			OpinionDto opinionDto = new OpinionDto();
+			opinionDto.setBoardId(opinion.getBoard().getBoardId());
+			opinionDto.setUserId(opinion.getUser().getUserId());
+			opinionDto.setOpinion(opinion.getOpinion());
+			result.put("opinion", opinionDto);
+		}
+		
+		given(opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(opinionMock);
+		opinion = opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
+		
+		if(opinion == null) {
+			result.put("opinion", "");
+		}else {
+			OpinionDto opinionDto = new OpinionDto();
+			opinionDto.setBoardId(opinion.getBoard().getBoardId());
+			opinionDto.setUserId(opinion.getUser().getUserId());
+			opinionDto.setOpinion(opinion.getOpinion());
+			result.put("opinion", opinionDto);
+			
+			assertThat(opinionDto.getOpinion()).isEqualTo(opinionMock.getOpinion());
+		}
+		
+		result.put("code", HttpServletResponse.SC_OK);
+		result.put("message", "get opinion completed");
+		
+						
+	}	
 }
+
