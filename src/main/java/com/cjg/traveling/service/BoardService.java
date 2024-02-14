@@ -26,6 +26,7 @@ import com.cjg.traveling.common.FileExtension;
 import com.cjg.traveling.common.HttpRequestUtil;
 import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.common.PageUtil;
+import com.cjg.traveling.common.kafka.KafkaProducer;
 import com.cjg.traveling.domain.Board;
 import com.cjg.traveling.domain.Media;
 import com.cjg.traveling.domain.Opinion;
@@ -69,6 +70,9 @@ public class BoardService {
 	
 	@Autowired
 	private Jwt jwt;
+	
+	@Autowired
+	private KafkaProducer kafkaProducer;	
 	
 	@Value("${uploadPath}")
 	private String uploadPath;
@@ -392,7 +396,17 @@ public class BoardService {
 			newOpinion.setUser(user);
 			newOpinion.setBoard(board);
 			newOpinion.setOpinion(boardDto.getOpinion());
-			opinionRepository.save(newOpinion);			
+			Opinion savedOpinion = opinionRepository.save(newOpinion);
+			
+			if(savedOpinion != null && !board.getUser().getUserId().equals(savedOpinion.getUser().getUserId())) {
+				OpinionDto dto = new OpinionDto();
+				dto.setOpinionId(savedOpinion.getOpinionId());
+				dto.setBoardId(savedOpinion.getBoard().getBoardId());
+				dto.setUserId(savedOpinion.getUser().getUserId());
+				dto.setOpinion(savedOpinion.getOpinion());
+				kafkaProducer.create("opinion", dto);
+			}
+			
 		}else {
 			opinion.setOpinion(boardDto.getOpinion());
 		}
