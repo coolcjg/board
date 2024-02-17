@@ -8,8 +8,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 
-import com.cjg.traveling.dto.OpinionDto;
-
 import lombok.AllArgsConstructor;
 
 @Component
@@ -19,7 +17,7 @@ public class KafkaProducer {
 	private final KafkaTemplate<String, Object> kafkaTemplate;
 	private final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
 		
-	public void create(String topic, OpinionDto message) {
+	public void create(String topic, String message) {
 		logger.info("topic : {}, message : {}", topic, message);
 		CompletableFuture<SendResult<String,Object>> future = kafkaTemplate.send(topic, message);
 		

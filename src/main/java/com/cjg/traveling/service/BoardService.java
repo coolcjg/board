@@ -40,6 +40,7 @@ import com.cjg.traveling.repository.BoardRepository;
 import com.cjg.traveling.repository.MediaRepository;
 import com.cjg.traveling.repository.OpinionRepository;
 import com.cjg.traveling.repository.UserRepository;
+import com.google.gson.Gson;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -404,7 +405,11 @@ public class BoardService {
 				dto.setBoardId(savedOpinion.getBoard().getBoardId());
 				dto.setUserId(savedOpinion.getUser().getUserId());
 				dto.setOpinion(savedOpinion.getOpinion());
-				kafkaProducer.create("opinion", dto);
+				
+				Gson gson = new Gson();
+				String opinionString = gson.toJson(dto);
+				
+				kafkaProducer.create("opinion", opinionString);
 			}
 			
 		}else {
