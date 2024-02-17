@@ -9,7 +9,8 @@ import com.google.gson.JsonParser;
 
 @Component
 public class KafkaConsumer {
-		
+	
+	/*
 	@KafkaListener(topics="opinion")
 	public void listener(Object data) {
 		ConsumerRecord consumerRecord = (ConsumerRecord)data;
@@ -26,5 +27,7 @@ public class KafkaConsumer {
 		
 		
 	}
+	*/
+	
 
 }

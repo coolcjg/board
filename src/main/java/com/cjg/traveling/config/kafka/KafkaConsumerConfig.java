@@ -22,7 +22,7 @@ public class KafkaConsumerConfig {
 	private String groupId;
 	
 	
-	
+	/*
 	@Bean
 	public ConsumerFactory<String, Object> consumerFactory(){
 		Map<String, Object> config = new HashMap<>();
@@ -41,4 +41,5 @@ public class KafkaConsumerConfig {
 		
 		return factory;
 	}
+	*/
 }
