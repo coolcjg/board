@@ -3,6 +3,7 @@ package com.cjg.traveling.service;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +34,8 @@ import com.cjg.traveling.domain.Opinion;
 import com.cjg.traveling.domain.User;
 import com.cjg.traveling.dto.BoardDto;
 import com.cjg.traveling.dto.BoardSpecs;
+import com.cjg.traveling.dto.KafkaBoardDto;
+import com.cjg.traveling.dto.KafkaDto;
 import com.cjg.traveling.dto.MediaDto;
 import com.cjg.traveling.dto.OpinionDto;
 import com.cjg.traveling.dto.UserDto;
@@ -400,11 +403,17 @@ public class BoardService {
 			Opinion savedOpinion = opinionRepository.save(newOpinion);
 			
 			if(savedOpinion != null && !board.getUser().getUserId().equals(savedOpinion.getUser().getUserId())) {
-				OpinionDto dto = new OpinionDto();
+				KafkaDto dto = new KafkaDto();
+				dto.setType("opinion");
 				dto.setOpinionId(savedOpinion.getOpinionId());
-				dto.setBoardId(savedOpinion.getBoard().getBoardId());
 				dto.setUserId(savedOpinion.getUser().getUserId());
+				dto.setDate(convertDateFormat(savedOpinion.getRegDate()));
 				dto.setOpinion(savedOpinion.getOpinion());
+				
+				KafkaBoardDto kafkaBoardDto = new KafkaBoardDto();
+				kafkaBoardDto.setBoardId(savedOpinion.getBoard().getBoardId());
+				kafkaBoardDto.setTitle(board.getTitle());
+				dto.setKafkaBoardDto(kafkaBoardDto);
 				
 				Gson gson = new Gson();
 				String opinionString = gson.toJson(dto);
@@ -418,6 +427,17 @@ public class BoardService {
 		
 		result.put("code", HttpServletResponse.SC_OK);
 		result.put("message", "post opinion completed");
+		return result;
+	}
+	
+	private String convertDateFormat(LocalDateTime localDateTime) {
+		String result = "";
+		
+		if(LocalDateTime.now().getYear() != localDateTime.getYear()) {
+			result += (localDateTime.getYear() + "년 ");
+		}
+		
+		result += (localDateTime.getMonthValue() + "월 " + localDateTime.getDayOfMonth() + "일");
 		return result;
 	}
 	

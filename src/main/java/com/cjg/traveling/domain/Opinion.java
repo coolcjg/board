@@ -1,5 +1,11 @@
 package com.cjg.traveling.domain;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,4 +35,8 @@ public class Opinion {
 	
 	@Column(nullable = false, length = 1)
 	private String opinion;
+	
+	@CreationTimestamp
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm")	
+	private LocalDateTime regDate;
 }
