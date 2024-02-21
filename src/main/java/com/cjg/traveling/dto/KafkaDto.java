@@ -6,11 +6,15 @@ import lombok.Data;
 public class KafkaDto {
 	
 	private String type;
-	private Long opinionId;
+	private Long alarmId;
 	private Long boardId;
-	private String userId;
-	private String opinion;
+	
+	private String fromUserId;
+	private String toUserId;
+	
+	private String value;
 	private String date;
+	private String message;
 	
 	private KafkaBoardDto kafkaBoardDto;
 

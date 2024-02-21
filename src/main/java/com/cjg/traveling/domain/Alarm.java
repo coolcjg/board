@@ -19,23 +19,30 @@ import lombok.NoArgsConstructor;
 @Entity
 @Data
 @NoArgsConstructor
-public class Opinion {	
+public class Alarm {	
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long opinionId;
+	private Long alarmId;
 	
 	@ManyToOne
 	@JoinColumn(name = "boardId")
 	Board board;
 	
 	@ManyToOne
-	@JoinColumn(name = "userId")
-	User user;
-
+	@JoinColumn(name = "fromUserId")
+	User fromUser;
+	
+	@ManyToOne
+	@JoinColumn(name = "toUserId")
+	User toUser;	
+	
 	@CreationTimestamp
 	@JsonFormat(pattern="yyyy-MM-dd HH:mm")	
 	private LocalDateTime regDate;
+	
+	@Column(nullable = false, length = 10)
+	private String type;
 	
 	@Column(nullable = false, length = 1)
 	private String value;	

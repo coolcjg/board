@@ -45,6 +45,8 @@ public class BoardDto {
 	
 	private String boardIdArray;
 	
-	private String opinion;
+	private String type;
+	
+	private String value;
 
 }

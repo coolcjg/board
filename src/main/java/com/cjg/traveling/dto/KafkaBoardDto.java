@@ -7,5 +7,6 @@ public class KafkaBoardDto {
 	
 	private Long boardId;
 	private String title;
+	private String userId;
 
 }

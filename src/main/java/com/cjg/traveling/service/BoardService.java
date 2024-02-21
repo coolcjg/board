@@ -3,7 +3,6 @@ package com.cjg.traveling.service;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,11 +22,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cjg.traveling.common.DateFormat;
 import com.cjg.traveling.common.FileExtension;
 import com.cjg.traveling.common.HttpRequestUtil;
 import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.common.kafka.KafkaProducer;
+import com.cjg.traveling.domain.Alarm;
 import com.cjg.traveling.domain.Board;
 import com.cjg.traveling.domain.Media;
 import com.cjg.traveling.domain.Opinion;
@@ -39,6 +40,7 @@ import com.cjg.traveling.dto.KafkaDto;
 import com.cjg.traveling.dto.MediaDto;
 import com.cjg.traveling.dto.OpinionDto;
 import com.cjg.traveling.dto.UserDto;
+import com.cjg.traveling.repository.AlarmRepository;
 import com.cjg.traveling.repository.BoardRepository;
 import com.cjg.traveling.repository.MediaRepository;
 import com.cjg.traveling.repository.OpinionRepository;
@@ -61,7 +63,10 @@ public class BoardService {
 	private MediaRepository mediaRepository;
 	
 	@Autowired
-	private OpinionRepository opinionRepository;
+	private AlarmRepository alarmRepository;
+	
+	@Autowired
+	private OpinionRepository opinionRepository;	
 	
 	@Autowired
 	private UserRepository userRepository;	
@@ -392,55 +397,64 @@ public class BoardService {
 		
 		Opinion opinion = opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
 		
+		// Opinion테이블 처리
 		if(opinion == null) {
 			User user = userRepository.findByUserId(boardDto.getUserId());
 			Board board = boardRepository.findByBoardId(boardDto.getBoardId());
-						
+			
 			Opinion newOpinion = new Opinion();
 			newOpinion.setUser(user);
 			newOpinion.setBoard(board);
-			newOpinion.setOpinion(boardDto.getOpinion());
+			newOpinion.setValue(boardDto.getValue());
+			
 			Opinion savedOpinion = opinionRepository.save(newOpinion);
 			
-			if(savedOpinion != null && !board.getUser().getUserId().equals(savedOpinion.getUser().getUserId())) {
+			
+			//Alarm테이블 처리(여기 작업해야함)
+			if(alarmRepository.findByBoard_boardIdAndFromUser_userId(boardDto.getBoardId(), boardDto.getUserId()) == null) {
+				
+				// Alarm테이블 저장
+				Alarm newAlarm = new Alarm();
+				newAlarm.setType("좋아요");
+				newAlarm.setValue(savedOpinion.getValue());
+				newAlarm.setBoard(board);
+				newAlarm.setFromUser(user);
+				newAlarm.setToUser(board.getUser());
+				Alarm savedAlarm = alarmRepository.save(newAlarm);
+				
+				// KAFKA PRODUCER 처리
 				KafkaDto dto = new KafkaDto();
-				dto.setType("opinion");
-				dto.setOpinionId(savedOpinion.getOpinionId());
-				dto.setUserId(savedOpinion.getUser().getUserId());
-				dto.setDate(convertDateFormat(savedOpinion.getRegDate()));
-				dto.setOpinion(savedOpinion.getOpinion());
+				dto.setType("좋아요");
+				dto.setAlarmId(savedAlarm.getAlarmId());
+				dto.setDate(DateFormat.convertDateFormat(savedAlarm.getRegDate()));
+				dto.setType(savedAlarm.getType());
+				dto.setValue(savedAlarm.getValue());
+				dto.setFromUserId(savedAlarm.getFromUser().getUserId());
+				dto.setToUserId(savedAlarm.getToUser().getUserId());
+				dto.setMessage(savedAlarm.getFromUser().getUserId() + "님이 좋아요를 눌렀습니다.");
 				
 				KafkaBoardDto kafkaBoardDto = new KafkaBoardDto();
-				kafkaBoardDto.setBoardId(savedOpinion.getBoard().getBoardId());
+				kafkaBoardDto.setBoardId(board.getBoardId());
 				kafkaBoardDto.setTitle(board.getTitle());
+				kafkaBoardDto.setUserId(board.getUser().getUserId());
 				dto.setKafkaBoardDto(kafkaBoardDto);
 				
 				Gson gson = new Gson();
 				String opinionString = gson.toJson(dto);
 				
-				kafkaProducer.create("opinion", opinionString);
+				kafkaProducer.create("opinion", opinionString);				
+			}else {
+				logger.info("알람 이미 존재함");
 			}
 			
 		}else {
-			opinion.setOpinion(boardDto.getOpinion());
+			opinion.setValue(boardDto.getValue());
 		}
 		
 		result.put("code", HttpServletResponse.SC_OK);
 		result.put("message", "post opinion completed");
 		return result;
 	}
-	
-	private String convertDateFormat(LocalDateTime localDateTime) {
-		String result = "";
-		
-		if(LocalDateTime.now().getYear() != localDateTime.getYear()) {
-			result += (localDateTime.getYear() + "년 ");
-		}
-		
-		result += (localDateTime.getMonthValue() + "월 " + localDateTime.getDayOfMonth() + "일");
-		return result;
-	}
-	
 
 	public Map<String, Object> deleteOpinion(BoardDto boardDto) throws Exception{
 		Map<String, Object> result = new HashMap();
@@ -470,7 +484,7 @@ public class BoardService {
 			OpinionDto opinionDto = new OpinionDto();
 			opinionDto.setBoardId(opinion.getBoard().getBoardId());
 			opinionDto.setUserId(opinion.getUser().getUserId());
-			opinionDto.setOpinion(opinion.getOpinion());
+			opinionDto.setValue(opinion.getValue());
 			result.put("opinion", opinionDto);
 		}
 		
