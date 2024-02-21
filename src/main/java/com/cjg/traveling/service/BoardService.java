@@ -45,6 +45,7 @@ import com.cjg.traveling.repository.BoardRepository;
 import com.cjg.traveling.repository.MediaRepository;
 import com.cjg.traveling.repository.OpinionRepository;
 import com.cjg.traveling.repository.UserRepository;
+import com.cjg.traveling.status.AlarmType;
 import com.google.gson.Gson;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -415,7 +416,7 @@ public class BoardService {
 				
 				// Alarm테이블 저장
 				Alarm newAlarm = new Alarm();
-				newAlarm.setType("좋아요");
+				newAlarm.setType(AlarmType.LIKE.getText());
 				newAlarm.setValue(savedOpinion.getValue());
 				newAlarm.setBoard(board);
 				newAlarm.setFromUser(user);
@@ -424,7 +425,7 @@ public class BoardService {
 				
 				// KAFKA PRODUCER 처리
 				KafkaDto dto = new KafkaDto();
-				dto.setType("좋아요");
+				dto.setType(AlarmType.LIKE.getText());
 				dto.setAlarmId(savedAlarm.getAlarmId());
 				dto.setDate(DateFormat.convertDateFormat(savedAlarm.getRegDate()));
 				dto.setType(savedAlarm.getType());
