@@ -33,10 +33,9 @@ import com.cjg.traveling.domain.Board;
 import com.cjg.traveling.domain.Media;
 import com.cjg.traveling.domain.Opinion;
 import com.cjg.traveling.domain.User;
+import com.cjg.traveling.dto.AlarmDto;
 import com.cjg.traveling.dto.BoardDto;
 import com.cjg.traveling.dto.BoardSpecs;
-import com.cjg.traveling.dto.KafkaBoardDto;
-import com.cjg.traveling.dto.KafkaDto;
 import com.cjg.traveling.dto.MediaDto;
 import com.cjg.traveling.dto.OpinionDto;
 import com.cjg.traveling.dto.UserDto;
@@ -80,6 +79,9 @@ public class BoardService {
 	
 	@Autowired
 	private Jwt jwt;
+	
+	@Autowired
+	private AlarmService alarmService;
 	
 	@Autowired
 	private KafkaProducer kafkaProducer;	
@@ -412,7 +414,9 @@ public class BoardService {
 			
 			
 			//Alarm테이블 처리(여기 작업해야함)
-			if(alarmRepository.findByBoard_boardIdAndFromUser_userId(boardDto.getBoardId(), boardDto.getUserId()) == null) {
+			if(!board.getUser().getUserId().equals(user.getUserId())
+					&& //alarmRepository.findByBoard_boardIdAndFromUser_userId(boardDto.getBoardId(), boardDto.getUserId()).size() == 0) {
+					true) {
 				
 				// Alarm테이블 저장
 				Alarm newAlarm = new Alarm();
@@ -423,25 +427,9 @@ public class BoardService {
 				newAlarm.setToUser(board.getUser());
 				Alarm savedAlarm = alarmRepository.save(newAlarm);
 				
-				// KAFKA PRODUCER 처리
-				KafkaDto dto = new KafkaDto();
-				dto.setType(AlarmType.LIKE.getText());
-				dto.setAlarmId(savedAlarm.getAlarmId());
-				dto.setDate(DateFormat.convertDateFormat(savedAlarm.getRegDate()));
-				dto.setType(savedAlarm.getType());
-				dto.setValue(savedAlarm.getValue());
-				dto.setFromUserId(savedAlarm.getFromUser().getUserId());
-				dto.setToUserId(savedAlarm.getToUser().getUserId());
-				dto.setMessage(savedAlarm.getFromUser().getUserId() + "님이 좋아요를 눌렀습니다.");
-				
-				KafkaBoardDto kafkaBoardDto = new KafkaBoardDto();
-				kafkaBoardDto.setBoardId(board.getBoardId());
-				kafkaBoardDto.setTitle(board.getTitle());
-				kafkaBoardDto.setUserId(board.getUser().getUserId());
-				dto.setKafkaBoardDto(kafkaBoardDto);
-				
+				// KAFKA PRODUCER 처리				
 				Gson gson = new Gson();
-				String opinionString = gson.toJson(dto);
+				String opinionString = gson.toJson(alarmService.setAlarmDto(savedAlarm));
 				
 				kafkaProducer.create("opinion", opinionString);				
 			}else {
@@ -491,6 +479,6 @@ public class BoardService {
 		
 		result.put("code", HttpServletResponse.SC_OK);
 		result.put("message", "get opinion completed");
-		return result;		
+		return result;
 	}
 }

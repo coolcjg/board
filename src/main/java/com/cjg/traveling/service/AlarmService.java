@@ -46,14 +46,7 @@ public class AlarmService {
 		List<AlarmDto> alarmDtolist = new ArrayList();
 		
 		for(Alarm alarm : alarmList) {
-			AlarmDto alarmDto = new AlarmDto();
-			alarmDto.setAlarmId(alarm.getAlarmId());
-			alarmDto.setBoardId(alarm.getBoard().getBoardId());
-			alarmDto.setFromUserId(alarm.getFromUser().getUserId());
-			alarmDto.setRegDate(DateFormat.convertDateFormat(alarm.getRegDate()));
-			alarmDto.setType(alarm.getType());
-			alarmDto.setValue(alarm.getValue());
-			alarmDtolist.add(alarmDto);
+			alarmDtolist.add(setAlarmDto(alarm));
 		}
 		
 		result.put("code", "200");
@@ -63,6 +56,18 @@ public class AlarmService {
 		
 	}
 	
-	
+	// 공통 AlarmDto 처리
+	public AlarmDto setAlarmDto(Alarm alarm) {
+		AlarmDto alarmDto = new AlarmDto();
+		alarmDto.setAlarmId(alarm.getAlarmId());
+		alarmDto.setBoardId(alarm.getBoard().getBoardId());
+		alarmDto.setFromUserId(alarm.getFromUser().getUserId());
+		alarmDto.setToUserId(alarm.getToUser().getUserId());
+		alarmDto.setRegDate(DateFormat.convertDateFormat(alarm.getRegDate()));
+		alarmDto.setType(alarm.getType());
+		alarmDto.setValue(alarm.getValue());
+		
+		return alarmDto;
+	}
 
 }

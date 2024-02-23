@@ -13,7 +13,7 @@ public class KafkaDto {
 	private String toUserId;
 	
 	private String value;
-	private String date;
+	private String regDate;
 	private String message;
 	
 	private KafkaBoardDto kafkaBoardDto;

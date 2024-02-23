@@ -12,7 +12,7 @@ public class AlarmSpecs {
 	
 	public static Specification<Alarm> searchWithUserId(String userId){
 		return (Specification<Alarm>)((root, query, builder) -> {
-			Predicate predicateUserId = builder.equal(root.get("fromUser").get("userId"), userId);
+			Predicate predicateUserId = builder.equal(root.get("toUser").get("userId"), userId);
 			return predicateUserId;
 		});
 	}

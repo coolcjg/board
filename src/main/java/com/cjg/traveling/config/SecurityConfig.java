@@ -60,8 +60,6 @@ public class SecurityConfig {
 						
 						.requestMatchers(HttpMethod.DELETE, "/media/**").authenticated()
 						
-						.requestMatchers(HttpMethod.GET, "/alarm/**").permitAll()
-						
 						.anyRequest().authenticated()
 			)
 			.exceptionHandling((exception) -> exception.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
