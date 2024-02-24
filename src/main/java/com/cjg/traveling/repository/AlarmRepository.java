@@ -13,6 +13,9 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long>, JpaSpecific
 	
 	Long deleteByBoard_boardIdAndFromUser_userId(Long boardId, String userId);
 	
+	int deleteByAlarmId(Long alarmId);
+	
+	Alarm findByAlarmId(Long alarmId);
 	
 
 }

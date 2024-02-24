@@ -12,5 +12,6 @@ public class AlarmDto {
 	private String regDate; 
 	private String type;
 	private String value;
+	private String checked;
 
 }

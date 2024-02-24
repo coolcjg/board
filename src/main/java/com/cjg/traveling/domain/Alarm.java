@@ -2,6 +2,7 @@ package com.cjg.traveling.domain;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -45,5 +46,9 @@ public class Alarm {
 	private String type;
 	
 	@Column(nullable = false, length = 1)
-	private String value;	
+	private String value;
+	
+	@Column(nullable = false, length = 1)
+	@ColumnDefault("'N'")
+	private String checked;
 }
