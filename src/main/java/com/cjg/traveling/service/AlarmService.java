@@ -64,6 +64,7 @@ public class AlarmService {
 		
 		result.put("code", HttpServletResponse.SC_OK);
 		result.put("list", alarmDtolist);
+		result.put("count", page.getTotalElements());
 		
 		return result;
 		
