@@ -66,13 +66,19 @@ public class BoardService {
 	private AlarmRepository alarmRepository;
 	
 	@Autowired
-	private OpinionRepository opinionRepository;	
+	private OpinionRepository opinionRepository;
+	
+	@Autowired
+	private OpinionService opinionService;		
 	
 	@Autowired
 	private UserRepository userRepository;	
 	
 	@Autowired
 	private MediaService mediaService;
+	
+	@Autowired
+	private AlarmService alaramService;
 	
 	@Autowired
 	private HttpRequestUtil httpRequestUtil;
@@ -92,10 +98,6 @@ public class BoardService {
 	
 	@Value("${serverUrl}")
 	private String serverUrl;
-	
-	@Value("${encodeReturnUrl}")
-	private String encodeReturnUrl;
-	
 	
 	public Map<String, Object> list(Map<String, Object> map){
 		
@@ -284,7 +286,7 @@ public class BoardService {
 				encodingParam.put("mediaId", media.get("mediaId"));
 				encodingParam.put("type", media.get("type"));
 				encodingParam.put("originalFile", media.get("originalFile"));
-				encodingParam.put("returnUrl", encodeReturnUrl);
+				encodingParam.put("returnUrl", serverUrl + "/api/encodingResult");
 				String postResult = httpRequestUtil.encodingRequest(encodingParam);
 				logger.info("postResult");
 				logger.info(postResult);
@@ -384,6 +386,12 @@ public class BoardService {
 			for(Media media: mediaList) {
 				mediaService.deleteMediaFile(media.getMediaId());
 			}
+			
+			// 좋아요 삭제
+			opinionService.deleteByBoard_boardId(boardId);
+			
+			// 알람 삭제
+			alaramService.deleteByBoard_boardId(boardId);		
 
 			// 게시글 삭제
 			boardRepository.deleteByBoardId(boardId);

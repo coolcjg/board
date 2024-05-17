@@ -152,6 +152,10 @@ public class AlarmService {
 		return result;
 		
 	}
+	
+	public Long deleteByBoard_boardId(Long boardId) {
+		return alarmRepository.deleteByBoard_boardId(boardId);
+	}
 
 
 }
