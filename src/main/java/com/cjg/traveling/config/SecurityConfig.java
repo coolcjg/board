@@ -45,6 +45,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/upload/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/image/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/jwt/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/media/**").permitAll()
 						
 						.requestMatchers(HttpMethod.GET, "/api/**").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/**").permitAll()

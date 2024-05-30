@@ -1,11 +1,17 @@
 package com.cjg.traveling.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.Data;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL) // Null 값인 필드 제외
 public class MediaDto {
 	
 	private Long mediaId;
+	private Long boardId;
+	
+	private String title;
 	
 	private String type;
 	

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cjg.traveling.domain.Media;
+import com.cjg.traveling.dto.MediaDto;
 import com.cjg.traveling.repository.MediaRepository;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +24,23 @@ public class MediaService {
 	
 	@Autowired
 	MediaRepository mediaRepository;
+	
+	public Map<String, Object> getMedia(Long mediaId) {
+		Map<String, Object> result = new HashMap();
+		
+		Media media = mediaRepository.findByMediaId(mediaId);
+		
+		MediaDto mediaDto = new MediaDto();
+		mediaDto.setMediaId(media.getMediaId());
+		mediaDto.setBoardId(media.getBoard().getBoardId());
+		mediaDto.setTitle(media.getBoard().getTitle());
+		
+		result.put("data", mediaDto);
+		result.put("code", HttpServletResponse.SC_OK);
+		result.put("message", "success");		
+		
+		return result;
+	}	
 	
 	@Transactional
 	public Map<String, Object> deleteMedia(Long mediaId) {

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,6 +21,11 @@ public class MediaController {
 	@DeleteMapping(value ="/media/{mediaId}")
 	public Map<String, Object> deleteMedia(HttpServletRequest request, @PathVariable("mediaId") long mediaId) throws Exception{
 		return mediaService.deleteMedia(mediaId);
-	}	
+	}
 	
+	@GetMapping(value = "/media/{mediaId}")
+	public Map<String,Object> getMedia(HttpServletRequest request, @PathVariable("mediaId") long mediaId) throws Exception{
+		return mediaService.getMedia(mediaId);
+	}
+
 }
