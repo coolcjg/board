@@ -1,14 +1,18 @@
 package com.cjg.traveling.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.cjg.traveling.domain.Address;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import jakarta.persistence.Embedded;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL) // Null 값인 필드 제외
 public class UserDto {
 	
 	@NotBlank(groups = {UserDtoUpdate.class, UserDtoLogin.class})
@@ -20,6 +24,9 @@ public class UserDto {
 	@NotBlank(message = "이름을 입력해주세요.", groups = UserDtoInsert.class)
 	private String name;
 	
+	@NotBlank(message = "권한을 입력해주세요.", groups = UserDtoInsert.class)
+	private String auth;
+	
 	private String phone;
 	
 	private String commnets;
@@ -28,5 +35,15 @@ public class UserDto {
 	private Address address;
 	
 	private LocalDate birthDay;
+	
+	
+	
+	private Integer pageNumber;
+	
+
+	private Integer pageSize;
+	
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm")
+	private LocalDateTime regDate;	
 
 }

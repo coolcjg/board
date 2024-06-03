@@ -28,6 +28,11 @@ public class UserController {
 		return userService.existsById(userId);
 	}
 	
+	@GetMapping("/user/list")
+	public Map<String, Object> list(UserDto user) {
+		return userService.list(user);
+	}	
+	
 	@PostMapping("/user")
 	public Map<String, Object> insertUser(@RequestBody @Validated(UserDtoInsert.class) UserDto user) {
 		return userService.insertUser(user);

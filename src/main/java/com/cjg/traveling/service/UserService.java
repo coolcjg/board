@@ -1,9 +1,15 @@
 package com.cjg.traveling.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +25,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @Transactional
 public class UserService {
 	
+	
+	
 	@Autowired
 	private UserRepository userRepository;
 	
@@ -27,6 +35,9 @@ public class UserService {
 	
 	@Autowired
 	private Encrypt encrypt;
+	
+	@Value("${serverUrl}")
+	private String serverUrl;	
 	
 	public Map<String,Object> existsById(String userId) {
 		
@@ -44,12 +55,47 @@ public class UserService {
 		return map;
 	}
 	
+	public Map<String, Object> list(UserDto userDto) {
+		
+		Map<String, Object> result = new HashMap<String,Object>();
+		
+		PageRequest pageRequest = PageRequest.of(userDto.getPageNumber()-1, userDto.getPageSize(), Sort.Direction.DESC, "regDate");
+		Page<User> page =  userRepository.findAll(pageRequest);
+		
+		Map<String, Object> data = new HashMap<String, Object>();
+
+		List<UserDto> userDtoList = new ArrayList();
+		
+		for(User user : page.getContent()) {
+			UserDto temp = new UserDto();
+			temp.setUserId(user.getUserId());
+			temp.setName(user.getName());
+			temp.setAuth(user.getAuth());
+			temp.setRegDate(user.getRegDate());
+			userDtoList.add(temp);
+		}
+		
+		data.put("list", userDtoList);
+		data.put("totalPages", page.getTotalPages());
+		data.put("pageSize", page.getSize());
+		data.put("pageNumber", page.getNumber()+1);
+		
+		data.put("prevList", page.getNumber() >=1 ? 
+				(serverUrl + "/user/list?pageNumber=" + page.getNumber() + "&pageSize=" + page.getSize()) : "");
+		
+		data.put("nextList", page.getNumber() < page.getTotalPages()-1 ? 
+				(serverUrl + "/user/list?pageNumber=" + (page.getNumber()+2) + "&pageSize=" + page.getSize()) : "");
+		
+		result.put("data", data);		
+		result.put("code", 200);
+		result.put("message", "success");
+		
+		return result;
+	}
+	
 	public User findByUserId(String userId) {
 		return userRepository.findByUserId(userId);
 	}
-	
-	
-	
 	
 	
 	// 회원 등록
@@ -65,6 +111,7 @@ public class UserService {
 		user.setPassword(encrypt.getEncrypt(userDTO.getPassword(), salt));
 		user.setName(userDTO.getName());
 		user.setBirthDay(userDTO.getBirthDay());
+		user.setAuth(userDTO.getAuth());
 		
 		User resultUser = userRepository.save(user);
 		
