@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cjg.traveling.common.Encrypt;
 import com.cjg.traveling.common.Jwt;
+import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.domain.User;
 import com.cjg.traveling.dto.UserDto;
 import com.cjg.traveling.repository.UserRepository;
@@ -86,7 +87,10 @@ public class UserService {
 		data.put("nextList", page.getNumber() < page.getTotalPages()-1 ? 
 				(serverUrl + "/user/list?pageNumber=" + (page.getNumber()+2) + "&pageSize=" + page.getSize()) : "");
 		
-		result.put("data", data);		
+		List<Integer> pagination = PageUtil.getStartEndPage(page.getNumber()+1, page.getTotalPages());
+		data.put("pagination", pagination);
+		
+		result.put("data", data);
 		result.put("code", 200);
 		result.put("message", "success");
 		
