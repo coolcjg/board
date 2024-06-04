@@ -97,6 +97,27 @@ public class UserService {
 		return result;
 	}
 	
+	public Map<String,Object> user(String userId) {
+		
+		Map<String,Object> result = new HashMap<>();
+		
+		User user = findByUserId(userId);
+		
+		UserDto userDto = new UserDto();
+		userDto.setUserId(user.getUserId());
+		userDto.setAddress(user.getAddress());
+		userDto.setAuth(user.getAuth());
+		userDto.setBirthDay(user.getBirthDay());
+		userDto.setName(user.getName());
+		userDto.setPhone(user.getPhone());
+		
+		result.put("data", userDto);
+		
+		return result;
+	}
+	
+	
+	
 	public User findByUserId(String userId) {
 		return userRepository.findByUserId(userId);
 	}
