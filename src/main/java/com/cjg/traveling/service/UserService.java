@@ -73,6 +73,7 @@ public class UserService {
 			temp.setName(user.getName());
 			temp.setAuth(user.getAuth());
 			temp.setRegDate(user.getRegDate());
+			temp.setModDate(user.getModDate());
 			userDtoList.add(temp);
 		}
 		
@@ -190,6 +191,20 @@ public class UserService {
 		user.setAuth(userDto.getAuth());
 		user.setName(userDto.getName());
 		user.setBirthDay(userDto.getBirthDay());
+		
+		result.put("message", "success");
+		
+		return result;
+		
+	}
+	
+	public Map<String, Object> delete(UserDto userDto){
+		
+		Map<String, Object> result = new HashMap<String, Object>();
+		
+		for(String userId : userDto.getUserIds()) {
+			userRepository.deleteByUserId(userId);
+		}
 		
 		result.put("message", "success");
 		

@@ -35,15 +35,18 @@ public class UserDto {
 	private Address address;
 	
 	private LocalDate birthDay;
-	
-	
-	
+		
 	private Integer pageNumber;
 	
 
 	private Integer pageSize;
 	
+	private String[] userIds;
+	
 	@JsonFormat(pattern="yyyy-MM-dd HH:mm")
-	private LocalDateTime regDate;	
+	private LocalDateTime regDate;
+	
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm")
+	private LocalDateTime modDate;		
 
 }

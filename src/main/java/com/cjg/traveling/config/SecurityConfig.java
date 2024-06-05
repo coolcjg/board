@@ -56,6 +56,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.DELETE, "/board", "/board/**").authenticated()
 						.requestMatchers(HttpMethod.PUT, "/board/**").authenticated()
 						
+						.requestMatchers(HttpMethod.GET, "/user/count/").permitAll()
 						.requestMatchers(HttpMethod.POST, "/user", "/user/login").permitAll()
 						
 						.requestMatchers(HttpMethod.DELETE, "/media/**").authenticated()

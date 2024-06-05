@@ -2,12 +2,11 @@ package com.cjg.traveling.domain;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -52,6 +51,6 @@ public class User {
 	private LocalDateTime regDate;
 	
 	// 수정일
-	@LastModifiedDate
-	private Date modDate;
+	@UpdateTimestamp
+	private LocalDateTime modDate;
 }
