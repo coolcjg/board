@@ -173,12 +173,28 @@ public class UserService {
 				map.put("refreshToken", refreshToken);
 				map.put("id", user.getUserId());
 				map.put("name", user.getName());
+				map.put("auth", user.getAuth());
 			}else {
 				map.put("code", "E-USER-003");
 			}
 		}
 		
 		return map;
+	}
+	
+	public Map<String, Object> putUser(UserDto userDto){
+		Map<String, Object> result = new HashMap<String, Object>();
+		
+		User user = userRepository.findByUserId(userDto.getUserId());
+		user.setPassword(encrypt.getEncrypt(userDto.getPassword(), user.getSalt()));
+		user.setAuth(userDto.getAuth());
+		user.setName(userDto.getName());
+		user.setBirthDay(userDto.getBirthDay());
+		
+		result.put("message", "success");
+		
+		return result;
+		
 	}
 	
 }
