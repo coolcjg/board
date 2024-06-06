@@ -99,21 +99,21 @@ public class BoardService {
 	@Value("${serverUrl}")
 	private String serverUrl;
 	
-	public Map<String, Object> list(Map<String, Object> map){
+	public Map<String, Object> list(Map<String, String> map){
 		
 		Map<String, Object> result = new HashMap<String, Object>();
 		
 		BoardDto boardDTO = new BoardDto();
 		int pageNumber=1;
 		
-		if(map.get("pageNumber") != null && !map.get("pageNumber").toString().equals("")) {
-			pageNumber = Integer.parseInt(map.get("pageNumber").toString());
+		if(map.get("pageNumber") != null && !map.get("pageNumber").isEmpty()) {
+			pageNumber = Integer.parseInt(map.get("pageNumber"));
 		}
 		
 		boardDTO.setPageNumber(pageNumber);
 		
 		Specification<Board> specification = null;
-		if(map.get("searchText") != null && !map.get("searchText").toString().equals("")) {
+		if(map.get("searchText") != null && !map.get("searchText").isEmpty()) {
 			Map<String, Object> whereParam = new HashMap<String, Object>();
 			whereParam.put("searchType", map.get("searchType"));
 			whereParam.put("searchText", map.get("searchText"));
@@ -150,7 +150,7 @@ public class BoardService {
 			
 		}
 		
-		result.put("code", "200");
+		result.put("message", "success");
 		result.put("boardList", boardList);
 		
 		int totalPage = page.getTotalPages() == 0 ? 1 : page.getTotalPages();

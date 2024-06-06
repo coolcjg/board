@@ -27,7 +27,7 @@ public class BoardController {
 	BoardService boardService;	
 	
 	@GetMapping("/board/list")
-	public Map<String, Object> list(@RequestParam(required = false) Map<String, Object> map){
+	public Map<String, Object> list(@RequestParam(required = false) Map<String, String> map){
 		return boardService.list(map);
 	}
 	
