@@ -36,7 +36,6 @@ public class MediaService {
 		mediaDto.setTitle(media.getBoard().getTitle());
 		
 		result.put("data", mediaDto);
-		result.put("code", HttpServletResponse.SC_OK);
 		result.put("message", "success");		
 		
 		return result;
@@ -48,9 +47,8 @@ public class MediaService {
 		Map<String, Object> result = new HashMap();
 		
 		deleteMediaFile(mediaId);
-		
-		result.put("code", HttpServletResponse.SC_OK);
-		result.put("message", "deleted");
+
+		result.put("message", "success");
 		return result;
 	}
 
