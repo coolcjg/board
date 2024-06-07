@@ -55,7 +55,7 @@ public class BoardController {
 	
 	@DeleteMapping(value ="/board")
 	public Map<String, Object> deleteBoard(HttpServletRequest request, @RequestBody BoardDto boardDTO) throws Exception{
-		return boardService.deleteBoard(request, boardDTO);
+		return boardService.deleteBoard(boardDTO);
 	}
 	
 	@PostMapping(value ="/board/opinion")

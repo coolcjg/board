@@ -170,12 +170,8 @@ public class BoardService {
 		UserDto userDTO = new UserDto();
 		Board board = boardRepository.findByBoardId(boardId);
 		
-		System.out.println("board----");
-		System.out.println(board);
-		
 		if(board == null) {
-			map.put("code", 500);
-			map.put("message", "board is null");			
+			map.put("message", "게시글이 존재하지 않습니다.");
 			return map; 
 		}
 		
@@ -194,9 +190,6 @@ public class BoardService {
 		boardDTO.setUserDTO(userDTO);
 		
 		List<MediaDto> mediaDTOList = new ArrayList<>();
-		
-		System.out.println("boardMediaList---");
-		System.out.println(board.getMediaList());
 		
 		for(Media media : board.getMediaList()) {
 			MediaDto mediaDTO = new MediaDto();
@@ -242,7 +235,6 @@ public class BoardService {
 		boardDTO.setMediaDTOList(mediaDTOList);
 		
 		map.put("board", boardDTO);
-		map.put("code", 200);
 		map.put("message", "success");
 		
 		return map;
@@ -361,13 +353,12 @@ public class BoardService {
 		board.setContents(boardDto.getContents());
 				
 		checkUploadFile(boardDto, board);
-		
-		result.put("code", HttpServletResponse.SC_OK);
-		result.put("message", "updated");
+
+		result.put("message", "success");
 		return result;
 	}
 	
-	public Map<String, Object> deleteBoard(HttpServletRequest request, BoardDto boardDto) throws Exception{
+	public Map<String, Object> deleteBoard(BoardDto boardDto) throws Exception{
 		
 		Map<String, Object> result = new HashMap();
 		
@@ -393,9 +384,8 @@ public class BoardService {
 			// 게시글 삭제
 			boardRepository.deleteByBoardId(boardId);
 		}
-		
-		result.put("code", HttpServletResponse.SC_OK);
-		result.put("message", "boards deleted");
+
+		result.put("message", "success");
 		return result;
 		
 	}
@@ -444,9 +434,8 @@ public class BoardService {
 		}else {
 			opinion.setValue(boardDto.getValue());
 		}
-		
-		result.put("code", HttpServletResponse.SC_OK);
-		result.put("message", "post opinion completed");
+
+		result.put("message", "success");
 		return result;
 	}
 
@@ -456,11 +445,9 @@ public class BoardService {
 		Long deleteResult = opinionRepository.deleteByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
 		
 		if(deleteResult == 1) {
-			result.put("code", HttpServletResponse.SC_OK);
-			result.put("message", "delete opinion completed");
+			result.put("message", "success");
 		}else {
-			result.put("code", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			result.put("message", "delete opinion fail");			
+			result.put("message", "fail");
 		}
 
 		return result;		
@@ -481,9 +468,8 @@ public class BoardService {
 			opinionDto.setValue(opinion.getValue());
 			result.put("opinion", opinionDto);
 		}
-		
-		result.put("code", HttpServletResponse.SC_OK);
-		result.put("message", "get opinion completed");
+
+		result.put("message", "success");
 		return result;
 	}
 }

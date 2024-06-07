@@ -5,6 +5,7 @@ import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.config.SecurityConfig;
 import com.cjg.traveling.dto.BoardDto;
+import com.cjg.traveling.dto.OpinionDto;
 import com.cjg.traveling.dto.UserDto;
 import com.cjg.traveling.repository.BoardRepository;
 import com.cjg.traveling.service.BoardService;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.LinkedMultiValueMap;
@@ -29,8 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -61,6 +62,9 @@ public class BoardControllerTest {
 
     @MockBean
     BoardRepository boardRepository;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Test
     @DisplayName("게시글 리스트")
@@ -138,5 +142,118 @@ public class BoardControllerTest {
             .andDo(print());
     }
 
+    @Test
+    @DisplayName("게시글 정보 가져오기")
+    void board() throws Exception{
 
+        Map<String, Object> result = new HashMap<>();
+        BoardDto boardDto = new BoardDto();
+        result.put("board", boardDto);
+        result.put("message", "success");
+
+        given(boardService.findByBoardId(1L)).willReturn(result);
+
+        mvc.perform(get("/board/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("success"))
+                .andExpect(jsonPath("$.board").exists())
+                .andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("게시글 수정")
+    void updateBoard() throws Exception{
+
+        BoardDto boardDto = new BoardDto();
+        boardDto.setBoardId(1L);
+        boardDto.setTitle("제목");
+        boardDto.setRegion("서울");
+
+        MultiValueMap<String , String> mvv = new LinkedMultiValueMap();
+        mvv.set("boardId", "1");
+        mvv.set("title", "제목");
+        mvv.set("region" , "서울");
+
+        Map<String ,Object> result = new HashMap<String, Object>();
+        result.put("message", "success");
+
+        given(boardService.updateBoard(boardDto)).willReturn(result);
+
+        mvc.perform(put("/board/1").params(mvv))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("success"))
+            .andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("게시글 삭제")
+    void deleteBoard() throws Exception{
+        BoardDto boardDto = new BoardDto();
+        boardDto.setBoardIdArray("1,2,3");
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("message", "success");
+
+        given(boardService.deleteBoard(boardDto)).willReturn(result);
+
+        mvc.perform(delete("/board").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(boardDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("success"))
+                .andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("의견 등록")
+    void postOpinion() throws Exception{
+        BoardDto boardDto = new BoardDto();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("message", "success");
+
+        given(boardService.postOpinion(boardDto)).willReturn(result);
+
+        mvc.perform(post("/board/opinion").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(boardDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("success"))
+                .andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("의견 삭제")
+    void deleteOpinion() throws Exception{
+        BoardDto boardDto = new BoardDto();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("message", "success");
+
+        given(boardService.deleteOpinion(boardDto)).willReturn(result);
+
+        mvc.perform(delete("/board/opinion").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(boardDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("success"))
+                .andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("의견 조회")
+    void getUserOpinion() throws Exception{
+        BoardDto boardDto = new BoardDto();
+
+        Map<String, Object> result = new HashMap<>();
+        OpinionDto opinionDto = new OpinionDto();
+        result.put("message", "success");
+        result.put("opinion", opinionDto);
+
+        given(boardService.getUserOpinion(boardDto)).willReturn(result);
+
+        mvc.perform(post("/board/userOpinion").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(boardDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("success"))
+                .andDo(print());
+    }
 }
