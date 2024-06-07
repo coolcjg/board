@@ -2,6 +2,7 @@ package com.cjg.traveling.controller;
 
 import java.util.Map;
 
+import com.cjg.traveling.common.Jwt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,6 +23,9 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 public class BoardController {
+
+	@Autowired
+	private Jwt jwt;
 	
 	@Autowired
 	BoardService boardService;	
@@ -33,7 +37,10 @@ public class BoardController {
 	
 	@PostMapping(value ="/board")
 	public Map<String, Object> board(HttpServletRequest request, @Validated(BoardDtoInsert.class) BoardDto boardDTO) throws Exception{
-		return boardService.save(request, boardDTO);
+		String accessToken = request.getHeader("accessToken");
+		String userId = jwt.getUserId(accessToken);
+		boardDTO.setUserId(userId);
+		return boardService.save(boardDTO);
 	}
 		
 	@GetMapping(value ="/board/{boardId}")

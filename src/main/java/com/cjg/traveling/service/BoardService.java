@@ -249,16 +249,13 @@ public class BoardService {
 	}
 	
 	
-	public Map<String, Object> save(HttpServletRequest request, BoardDto boardDto) throws Exception{
+	public Map<String, Object> save(BoardDto boardDto) throws Exception{
 		
 		Map<String, Object> map = new HashMap();
-		
-		String accessToken = request.getHeader("accessToken");
-		String userId = jwt.getUserId(accessToken);
-		
+
 		User user = new User();
-		user.setUserId(userId);
-		
+		user.setUserId(boardDto.getUserId());
+
 		Board board = new Board();
 		board.setUser(user);
 		board.setTitle(boardDto.getTitle());
@@ -269,7 +266,7 @@ public class BoardService {
 		
 		checkUploadFile(boardDto, newBoard);
 		
-		map.put("code", HttpServletResponse.SC_CREATED);
+		map.put("message", "success");
 		return map;	
 	}
 	
