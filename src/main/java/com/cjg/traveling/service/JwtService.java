@@ -27,14 +27,9 @@ public class JwtService {
 	@Autowired
 	UserService userService;
 	
-	public Map<String, Object> accessToken(HttpServletRequest request){
+	public Map<String, Object> accessToken(String refreshToken){
 		
 		Map<String, Object> result = new HashMap<String, Object>();
-		
-		String refreshToken = request.getHeader("refreshToken");
-		
-		System.out.println("accessToken");
-		System.out.println("refreshToken : " + refreshToken);
 		
 		try {		
 			if(jwt.validateJwtToken(refreshToken)) {
@@ -44,7 +39,7 @@ public class JwtService {
 				
 				if(user.getRefreshToken().equals(refreshToken)) {
 					String accessToken = jwt.createAccessToken(user);
-					result.put("code", HttpServletResponse.SC_OK);
+					result.put("message", "success");
 					result.put("accessToken", accessToken);
 				}
 			}

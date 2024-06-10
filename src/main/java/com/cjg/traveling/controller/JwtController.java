@@ -18,9 +18,9 @@ public class JwtController {
 	JwtService jwtService;
 	
 	@GetMapping("/jwt/accessToken")
-	public Map<String, Object> accessToken(HttpServletRequest request, HttpServletResponse response) {
-		return jwtService.accessToken(request);
-	}	
-	
+	public Map<String, Object> accessToken(HttpServletRequest request) {
+		String refreshToken = request.getHeader("refreshToken");
+		return jwtService.accessToken(refreshToken);
+	}
 
 }
