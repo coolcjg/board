@@ -25,7 +25,6 @@ public class ApiService {
 	
 	public Map<String, Object> encodingResult(MediaDto dto){
 		
-		logger.info("encodingResult dto : " + dto.toString());
 		Media media = mediaRepository.findByMediaId(dto.getMediaId());
 		
 		String status = dto.getStatus();		
@@ -42,8 +41,7 @@ public class ApiService {
 		}
 		
 		Map<String, Object> result = new HashMap();
-		result.put("code", HttpStatus.OK);
-		result.put("message", "updated");
+		result.put("message", "success");
 		
 		return result;
 	}
