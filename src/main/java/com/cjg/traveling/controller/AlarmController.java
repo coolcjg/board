@@ -2,12 +2,8 @@ package com.cjg.traveling.controller;
 
 import java.util.Map;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.cjg.traveling.common.Jwt;
+import org.springframework.web.bind.annotation.*;
 
 import com.cjg.traveling.service.AlarmService;
 
@@ -19,20 +15,29 @@ import lombok.RequiredArgsConstructor;
 public class AlarmController {
 	
 	private final AlarmService alarmService;
+	private final Jwt jwt;
 	
 	@GetMapping("/alarm/list")
 	public Map<String, Object> list(HttpServletRequest request, @RequestParam(required = false) Map<String, Object> map){
-		return alarmService.list(request, map);
+		String accessToken = request.getHeader("accessToken");
+		String userId = jwt.getUserId(accessToken);
+		map.put("accessTokenUserId", userId);
+		return alarmService.list(map);
 	}
 	
-	@DeleteMapping("/alarm/{alarmId}")
-	public Map<String, Object> delete(HttpServletRequest request, @PathVariable("alarmId") long alarmId){
-		return alarmService.delete(request, alarmId);
+	@DeleteMapping("/alarm")
+	public Map<String, Object> deleteAlarm(HttpServletRequest request, @RequestParam long alarmId){
+		String accessToken = request.getHeader("accessToken");
+		String userId = jwt.getUserId(accessToken);
+
+		return alarmService.delete(alarmId, userId);
 	}
 	
 	@PutMapping("/alarm/check/{alarmId}")
 	public Map<String, Object> check(HttpServletRequest request, @PathVariable("alarmId") long alarmId){
-		return alarmService.check(request, alarmId);
+		String accessToken = request.getHeader("accessToken");
+		String userId = jwt.getUserId(accessToken);
+		return alarmService.check(userId, alarmId);
 	}	
 
 }
