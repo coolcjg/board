@@ -52,12 +52,12 @@ public class UserController {
 	}	
 	
 	@PostMapping("/user/login")
-	public Map<String, Object> login(HttpServletResponse response, @RequestBody @Validated(UserDtoLogin.class) UserDto user) {
-		return userService.login(user, response);
+	public Map<String, Object> login(@RequestBody @Validated(UserDtoLogin.class) UserDto user) {
+		return userService.login(user);
 	}
-	
+
 	@DeleteMapping("/user")
-	public Map<String, Object> delete(HttpServletResponse response, @RequestBody UserDto user) {
+	public Map<String, Object> deleteUser(@RequestBody UserDto user) {
 		return userService.delete(user);
 	}
 	

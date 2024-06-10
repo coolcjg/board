@@ -45,7 +45,7 @@ public class UserService {
 		Map<String, Object> map = new HashMap<String, Object>();
 		boolean exists = userRepository.existsByUserId(userId);
 		
-		map.put("code", "200");
+		map.put("message", "success");
 		
 		if(exists == true) {
 			map.put("count", 1);
@@ -92,7 +92,6 @@ public class UserService {
 		data.put("pagination", pagination);
 		
 		result.put("data", data);
-		result.put("code", 200);
 		result.put("message", "success");
 		
 		return result;
@@ -113,6 +112,7 @@ public class UserService {
 		userDto.setPhone(user.getPhone());
 		
 		result.put("data", userDto);
+		result.put("message", "success");
 		
 		return result;
 	}
@@ -140,25 +140,21 @@ public class UserService {
 		user.setAuth(userDTO.getAuth());
 		
 		User resultUser = userRepository.save(user);
-		
-		if(resultUser.getUserId() == user.getUserId()) {
-			map.put("code", "200");
-		}else {
-			map.put("code", "E-USER-001");
-		}
-		
+
+		map.put("message", "success");
+
 		return map; 
 	}
 	
 	// 로그인
-	public Map<String, Object> login(UserDto userDTO, HttpServletResponse response) {
+	public Map<String, Object> login(UserDto userDTO) {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
 		User user = userRepository.findByUserId(userDTO.getUserId());
 		
 		if(user == null) {
-			map.put("code", "E-USER-002");
+			map.put("message", "user empty");
 		}else {
 			
 			if(user.getPassword().equals(encrypt.getEncrypt(userDTO.getPassword(), user.getSalt()))) {
@@ -168,15 +164,15 @@ public class UserService {
 				
 				user.setRefreshToken(refreshToken);
 				userRepository.save(user);
-								
-				map.put("code", "200");
+
+				map.put("message", "success");
 				map.put("accessToken", accessToken);
 				map.put("refreshToken", refreshToken);
 				map.put("id", user.getUserId());
 				map.put("name", user.getName());
 				map.put("auth", user.getAuth());
 			}else {
-				map.put("code", "E-USER-003");
+				map.put("code", "password not match");
 			}
 		}
 		
