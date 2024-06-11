@@ -96,11 +96,11 @@ public class AlarmService {
 			if(count == 1) {
 				result.put("message", "success");
 			}else {
-				result.put("message", "fail");
-			}			
-			
+				result.put("message", "target empty");
+			}
+
 		}else {
-			result.put("message", "fail");
+			result.put("message", "auth fail");
 		}
 		
 		return result;
@@ -128,16 +128,13 @@ public class AlarmService {
 			alarm.setChecked("Y");
 			result.put("message", "success");
 		}else {
-			result.put("code", HttpServletResponse.SC_UNAUTHORIZED);
-			result.put("message", "authFail");			
+			result.put("message", "auth fail");
 		}
-		
-		logger.info("check result {}", result);
 			
 		return result;
 		
 	}
-	
+
 	public Long deleteByBoard_boardId(Long boardId) {
 		return alarmRepository.deleteByBoard_boardId(boardId);
 	}

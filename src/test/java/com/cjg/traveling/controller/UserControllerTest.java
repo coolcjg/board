@@ -3,6 +3,7 @@ package com.cjg.traveling.controller;
 
 import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.config.SecurityConfig;
+import com.cjg.traveling.domain.Address;
 import com.cjg.traveling.dto.UserDto;
 import com.cjg.traveling.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -106,6 +107,12 @@ public class UserControllerTest {
         userDto.setPassword("1234");
         userDto.setName("최종규");
         userDto.setAuth("admin");
+
+        Address address = new Address();
+        address.setCity("city1");
+        address.setRoadName("road1");
+        address.setZipCode("zip1");
+        userDto.setAddress(address);
 
         Map<String,Object> result = new HashMap<>();
         result.put("message", "success");
