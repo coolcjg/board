@@ -1,21 +1,18 @@
 package com.cjg.traveling.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import com.cjg.traveling.common.DateFormat;
+import com.cjg.traveling.common.HttpRequestUtil;
+import com.cjg.traveling.common.Jwt;
+import com.cjg.traveling.common.kafka.KafkaProducer;
+import com.cjg.traveling.domain.*;
+import com.cjg.traveling.dto.AlarmDto;
+import com.cjg.traveling.dto.BoardDto;
+import com.cjg.traveling.dto.UserDto;
+import com.cjg.traveling.repository.*;
+import com.cjg.traveling.status.AlarmType;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,31 +25,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cjg.traveling.common.FileExtension;
-import com.cjg.traveling.common.HttpRequestUtil;
-import com.cjg.traveling.common.Jwt;
-import com.cjg.traveling.common.PageUtil;
-import com.cjg.traveling.domain.Board;
-import com.cjg.traveling.domain.Media;
-import com.cjg.traveling.domain.Alarm;
-import com.cjg.traveling.domain.User;
-import com.cjg.traveling.dto.BoardDto;
-import com.cjg.traveling.dto.BoardSpecs;
-import com.cjg.traveling.dto.MediaDto;
-import com.cjg.traveling.dto.AlarmDto;
-import com.cjg.traveling.dto.UserDto;
-import com.cjg.traveling.repository.BoardRepository;
-import com.cjg.traveling.repository.MediaRepository;
-import com.cjg.traveling.repository.AlarmRepository;
-import com.cjg.traveling.repository.UserRepository;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import jakarta.servlet.http.HttpServletResponse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 public class BoardServiceTest {
@@ -64,14 +50,25 @@ public class BoardServiceTest {
 	
 	@Mock
 	private MediaRepository mediaRepository;
+
+	@Mock
+	private AlarmService alaramService;
+
+	@Mock
+	private OpinionService opinionService;
 	
 	@Mock
-	private AlarmRepository opinionRepository;
+	private OpinionRepository opinionRepository;
 	
 	@Mock
 	private UserRepository userRepository;
+
+	@Mock
+	private AlarmService alarmService;
+	@Mock
+	private AlarmRepository alarmRepository;
 	
-	@InjectMocks
+	@Mock
 	private MediaService mediaService;
 	
 	@Mock
@@ -79,6 +76,12 @@ public class BoardServiceTest {
 	
 	@InjectMocks
 	private Jwt jwt;
+
+	@Mock
+	KafkaProducer kafkaProducer;
+
+	@InjectMocks
+	private BoardService boardService;
 	
 	@Value("${uploadPath}")
 	private static String uploadPath;
@@ -91,167 +94,118 @@ public class BoardServiceTest {
 	
 	@BeforeAll
 	public static void setUp() {
-	    ReflectionTestUtils.setField(BoardServiceTest.class, "uploadPath", "D:/NAS/upload/");
+	    ReflectionTestUtils.setField(BoardServiceTest.class, "uploadPath", "D:/NAS/upload11/");
 	    ReflectionTestUtils.setField(BoardServiceTest.class, "serverUrl", "http://localhost:8080");
 	    ReflectionTestUtils.setField(BoardServiceTest.class, "encodeReturnUrl", "http://localhost:8080/api/encodingResult");
 	}	
 	
 	@Test
+	@DisplayName("리스트 검색")
 	public void list(){
-				
-		List<Map<String,String>> paramList = new ArrayList();
-		
-		Map<String,String> map1 = new HashMap();
-		map1.put("pageNumber", null);
-		map1.put("searchType", "all");
-		map1.put("searchText", "test");		
-		
-		Map<String,String> map2 = new HashMap();
-		map2.put("pageNumber", "1");
-		map2.put("searchType", "title");
-		map2.put("searchText", "testTitle");
-		
-		Map<String,String> map3 = new HashMap();
-		map3.put("pageNumber", "1");
-		map3.put("searchType", "region");
-		map3.put("searchText", "seoul");
-		
-		Map<String,String> map4 = new HashMap();
-		map4.put("pageNumber", "1");
-		map4.put("searchType", "userId");
-		map4.put("searchText", "----");
-		
-		Map<String,String> map5 = new HashMap();
-		map5.put("pageNumber", "1");
-		map5.put("searchType", "regDate");
-		map5.put("searchText", "2024-01-23~2024-01-23");
-		
-		Map<String,String> map6 = new HashMap();
-		map6.put("pageNumber", "1");
-		map6.put("searchType", null);
-		map6.put("searchText", null);		
-		
-		paramList.add(map1);
-		paramList.add(map2);
-		paramList.add(map3);
-		paramList.add(map4);
-		paramList.add(map5);
-		paramList.add(map6);
-		
-		List<Board> boardListMock = new ArrayList();
-		
+
+		Map<String,String> map = new HashMap();
+		map.put("pageNumber", "1");
+		map.put("searchType", "all");
+		map.put("searchText", "test");
+
+		List<Board> boardList = new ArrayList();
 		User user = new User();
 		user.setUserId("testId");
-		
+
 		Board boardMock1 = new Board();
 		boardMock1.setBoardId(1l);
 		boardMock1.setUser(user);
-		
+
 		Board boardMock2 = new Board();
 		boardMock2.setBoardId(2l);
 		boardMock2.setUser(user);
-		
+
 		Board boardMock3 = new Board();
 		boardMock3.setBoardId(3l);
 		boardMock3.setUser(user);
-		
+
 		Board boardMock4 = new Board();
 		boardMock4.setBoardId(4l);
 		boardMock4.setUser(user);
-		
+
 		Board boardMock5 = new Board();
 		boardMock5.setBoardId(5l);
 		boardMock5.setUser(user);
-		
-		boardListMock.add(boardMock1);
-		boardListMock.add(boardMock2);
-		boardListMock.add(boardMock3);
-		boardListMock.add(boardMock4);
-		boardListMock.add(boardMock5);
-		
-		for(Map<String, String> map : paramList) {
-			
-			Map<String, Object> result = new HashMap<String, Object>();
-			
-			BoardDto boardDTO = new BoardDto();
-			int pageNumber=1;
-			
-			if(map.get("pageNumber") != null && !map.get("pageNumber").toString().equals("")) {
-				pageNumber = Integer.parseInt(map.get("pageNumber").toString());
-			}
-			
-			boardDTO.setPageNumber(pageNumber);
-			
-			Specification<Board> specification = null;
-			if(map.get("searchText") != null && !map.get("searchText").toString().equals("")) {
-				Map<String, Object> whereParam = new HashMap<String, Object>();
-				whereParam.put("searchType", map.get("searchType"));
-				whereParam.put("searchText", map.get("searchText"));
-				specification = BoardSpecs.searchWith(whereParam);
-			}
-					
-			PageRequest pageRequest = PageRequest.of(boardDTO.getPageNumber()-1, 10, Sort.Direction.DESC, "regDate");
-			Page<Board> page;
 
-			
-			Pageable pageableMock = PageRequest.of(0, 10);
-			page = new PageImpl(boardListMock, pageableMock, 10l);
-			
-			if(specification == null) {				
-				given(boardRepository.findAll(pageRequest)).willReturn(page);
-				page = boardRepository.findAll(pageRequest);
-			}else {
-				given(boardRepository.findAll(specification, pageRequest)).willReturn(page);
-				page = boardRepository.findAll(specification, pageRequest);
-			}
-			
-			List<BoardDto> boardList = new ArrayList();
-			
-			for(Board board : page.getContent()) {
-				BoardDto temp = new BoardDto();
-				
-				temp.setBoardId(board.getBoardId());
-				temp.setContents(board.getContents());
-				temp.setRegDate(board.getRegDate());
-				temp.setRegion(board.getRegion());
-				temp.setTitle(board.getTitle());
-				temp.setView(board.getView());
-				
-				UserDto userDTO = new UserDto();
-				userDTO.setName(board.getUser().getName());
-				userDTO.setUserId(board.getUser().getUserId());
-				temp.setUserDTO(userDTO);
-				
-				boardList.add(temp);
-				
-			}
-			
-			result.put("code", "200");
-			result.put("boardList", boardList);
-			
-			int totalPage = page.getTotalPages() == 0 ? 1 : page.getTotalPages();
-			result.put("pageNumber", page.getPageable().getPageNumber()+1);
-			result.put("totalPage", totalPage);
-			
-			List<Integer> pagination = PageUtil.getStartEndPage(pageNumber, totalPage);
-			result.put("pagination", pagination);				
-			
-			Assertions.assertThat(boardList.size()).isEqualTo(boardListMock.size());
-		}
+		boardList.add(boardMock1);
+		boardList.add(boardMock2);
+		boardList.add(boardMock3);
+		boardList.add(boardMock4);
+		boardList.add(boardMock5);
 
+		Pageable pageableMock = PageRequest.of(0, 10);
+		Page<Board> page = new PageImpl<>(boardList, pageableMock, 10L);
+
+		given(boardRepository.findAll(any(Specification.class), any(PageRequest.class))).willReturn(page);
+
+		Map<String,Object> result  = boardService.list(map);
+
+		Assertions.assertThat((String)result.get("message")).isEqualTo("success");
+
+	}
+
+	@Test
+	@DisplayName("리스트 검색 : 검색조건 없을 때")
+	public void list_2(){
+
+		Map<String,String> map = new HashMap();
+		map.put("pageNumber", "1");
+		map.put("searchType", null);
+		map.put("searchText", null);
+
+		List<Board> boardList = new ArrayList();
+		User user = new User();
+		user.setUserId("testId");
+
+		Board boardMock1 = new Board();
+		boardMock1.setBoardId(1l);
+		boardMock1.setUser(user);
+
+		Board boardMock2 = new Board();
+		boardMock2.setBoardId(2l);
+		boardMock2.setUser(user);
+
+		Board boardMock3 = new Board();
+		boardMock3.setBoardId(3l);
+		boardMock3.setUser(user);
+
+		Board boardMock4 = new Board();
+		boardMock4.setBoardId(4l);
+		boardMock4.setUser(user);
+
+		Board boardMock5 = new Board();
+		boardMock5.setBoardId(5l);
+		boardMock5.setUser(user);
+
+		boardList.add(boardMock1);
+		boardList.add(boardMock2);
+		boardList.add(boardMock3);
+		boardList.add(boardMock4);
+		boardList.add(boardMock5);
+
+		Pageable pageableMock = PageRequest.of(0, 10);
+		Page<Board> page = new PageImpl<>(boardList, pageableMock, 10L);
+
+		given(boardRepository.findAll(any(PageRequest.class))).willReturn(page);
+
+		Map<String,Object> result  = boardService.list(map);
+
+		Assertions.assertThat((String)result.get("message")).isEqualTo("success");
 
 	}
 	
 	@Test
+	@DisplayName("게시글 찾기")
 	public void findByBoardId() {
 		
-		List<Board> mockList = new ArrayList();
-		
-		mockList.add(null);
-		
 		Long boardId = 1L;
-		Board board1 = new Board();
-		board1.setBoardId(boardId);
+		Board board = new Board();
+		board.setBoardId(boardId);
 		
 		User userMock = new User();
 		userMock.setUserId("coolcjg");
@@ -261,14 +215,14 @@ public class BoardServiceTest {
 		LocalDate birthDay = LocalDate.of(1990, 1, 24);		
 		userMock.setBirthDay(birthDay);
 		userMock.setRefreshToken("eyJhbGciOiJIUzM4NCJ9.eyJuYW1lIjoi7LWc7KKF6recIiwiaWQiOiJjb29sY2pnIiwiaWF0IjoxNzA2MDg0NDk3LCJleHAiOjE3MDg3NjI4OTd9.SsGyUqiZBAzCKvScLE30zx-6B2Znyb1iwdmJ8g2X_rsqChAnir1xcbO7j6V5YYZu");
-		
-		board1.setUser(userMock);
-		
-		board1.setTitle("22");
-		board1.setContents("323231");
-		board1.setRegion("인천");
-		board1.setRegDate(LocalDateTime.of(2024, 1, 21, 19, 40, 18));
-		board1.setView(10);
+
+		board.setUser(userMock);
+
+		board.setTitle("22");
+		board.setContents("323231");
+		board.setRegion("인천");
+		board.setRegDate(LocalDateTime.of(2024, 1, 21, 19, 40, 18));
+		board.setView(10);
 		
 		Media media1 = new Media();
 		media1.setMediaId(84L);
@@ -330,99 +284,32 @@ public class BoardServiceTest {
 		mediaListMock.add(media2);
 		mediaListMock.add(media3);
 		mediaListMock.add(media4);
-		
-		board1.setMediaList(mediaListMock);
-		
-		mockList.add(board1);
-		
-		for(Board boardMock : mockList) {
-			
-			Map<String, Object> map = new HashMap();
-			BoardDto boardDTO = new BoardDto();
-			UserDto userDTO = new UserDto();
-			
-			given(boardRepository.findByBoardId(boardId)).willReturn(boardMock);
-			
-			Board board = boardRepository.findByBoardId(boardId);
-			
-			if(board == null) {
-				map.put("code", 500);
-				map.put("message", "board is null");
-				
-				Assertions.assertThat(board).isEqualTo(boardMock);
-				
-				return;
-			}
-			
-			//조회수 통계 추가
-			board.setView(board.getView()+1);
-			
-			boardDTO.setBoardId(board.getBoardId());
-			boardDTO.setContents(board.getContents());
-			boardDTO.setRegion(board.getRegion());
-			boardDTO.setTitle(board.getTitle());
-			boardDTO.setRegDate(board.getRegDate());
-			
-			userDTO.setName(board.getUser().getName());
-			userDTO.setUserId(board.getUser().getUserId());
-			
-			boardDTO.setUserDTO(userDTO);
-			
-			List<MediaDto> mediaDTOList = new ArrayList<>();
-			for(Media media : board.getMediaList()) {
-				MediaDto mediaDTO = new MediaDto();
-				
-				mediaDTO.setMediaId(media.getMediaId());
-				mediaDTO.setType(media.getType());
-				mediaDTO.setStatus(media.getStatus());
-				mediaDTO.setOriginalFileClientName(media.getOriginalFileClientName());
-				
-				if(media.getStatus().equals("success")) {
-								
-					if(media.getType().equals("video")) {
-						
-						mediaDTO.setEncodingFileUrl(serverUrl 
-								+ media.getEncodingFilePath().substring( media.getEncodingFilePath().indexOf("/upload/") ) 
-								+ media.getEncodingFileName());					
-					
-						mediaDTO.setThumbnailImgUrl(serverUrl 
-													+ media.getThumbnailPath().substring(media.getThumbnailPath().indexOf("/upload/")));
-					}else if(media.getType().equals("audio")) {
-						
-						mediaDTO.setEncodingFileUrl(serverUrl 
-								+ media.getEncodingFilePath().substring( media.getEncodingFilePath().indexOf("/upload/") ) 
-								+ media.getEncodingFileName());
-						
-						mediaDTO.setThumbnailImgUrl(serverUrl + "/image/audio.jpg");
-					}else if(media.getType().equals("image")) {
-						
-						mediaDTO.setEncodingFileUrl(serverUrl 
-								+ media.getEncodingFilePath().substring( media.getEncodingFilePath().indexOf("/upload/") ) 
-								+ media.getEncodingFileName());
-						
-						mediaDTO.setThumbnailImgUrl(serverUrl + media.getThumbnailPath().substring(media.getThumbnailPath().indexOf("/upload/")));
-					}else {
-						mediaDTO.setEncodingFileUrl(serverUrl + "/image/document-large.jpg");
-						mediaDTO.setThumbnailImgUrl(serverUrl + "/image/document.jpg");
-					}
-				}
-				
-				mediaDTOList.add(mediaDTO);
-			}
-			
-			boardDTO.setMediaDTOList(mediaDTOList);
-			
-			map.put("board", boardDTO);
-			map.put("code", 200);
-			map.put("message", "success");
-			
-			Assertions.assertThat(board).isEqualTo(boardMock);
-		}
 
-		
+		board.setMediaList(mediaListMock);
+
+		given(boardRepository.findByBoardId(boardId)).willReturn(board);
+			
+		Map<String,Object> result = boardService.findByBoardId(boardId);
+
+		Assertions.assertThat(result.get("message")).isEqualTo("success");
+	}
+
+	@Test
+	@DisplayName("게시글 찾기 : 없는 게시글일 경우")
+	public void findByBoardId_2() {
+
+		Long boardId = 1L;
+		Board board = null;
+
+		given(boardRepository.findByBoardId(boardId)).willReturn(board);
+
+		Map<String,Object> result = boardService.findByBoardId(boardId);
+
+		Assertions.assertThat(result.get("message")).isEqualTo("Board is not exists");
 	}
 	
 	@Test
+	@DisplayName("게시글 저장")
 	public void save() throws Exception{
 		
 		//given		
@@ -430,14 +317,10 @@ public class BoardServiceTest {
 		userDtoMock.setUserId("coolcjg");
 		userDtoMock.setName("최종규");
 		
-		User userMock = new User();
-		userMock.setUserId("coolcjg");
-		String accessToken = jwt.createAccessToken(userMock);
-		
 		//첨부 미디어가 있을 때
-		BoardDto boardDto1 = new BoardDto();
-		boardDto1.setUserDTO(userDtoMock);
-		boardDto1.setTitle("1");
+		BoardDto boardDto = new BoardDto();
+		boardDto.setUserDTO(userDtoMock);
+		boardDto.setTitle("1");
 		
 		List<MultipartFile> multiList = new ArrayList();
 		
@@ -457,187 +340,89 @@ public class BoardServiceTest {
 		multiList.add(multiMock2);
 		multiList.add(multiMock3);
 		multiList.add(multiMock4);
-		
-		boardDto1.setFiles(multiList);
-		
-		//첨부 미디어가 없을 때
-		BoardDto boardDto2 = new BoardDto();
-		boardDto2.setUserDTO(userDtoMock);
-		boardDto2.setTitle("2");
-		
-		List<BoardDto> paramList = new ArrayList();
-		paramList.add(boardDto1);
-		paramList.add(boardDto2);
-		
-		for(BoardDto boardDto : paramList) {
-			
-			//구현 영역
-			String userId = jwt.getUserId(accessToken);
-			
-			User user = new User();
-			user.setUserId(userId);
-			
-			Board board = new Board();
-			board.setUser(user);
-			board.setTitle(boardDto.getTitle());
-			board.setRegion(boardDto.getRegion());
-			board.setContents(boardDto.getContents());
-			
-			given(boardRepository.save(board)).willReturn(board);
-			Board newBoard = boardRepository.save(board);
-			
-			Assertions.assertThat(newBoard).isEqualTo(board);
-			
-			checkUploadFile(boardDto, newBoard);
-			
-		}
-		
-	}
-	
-	// 파일 업로드 체크
-	private void checkUploadFile(BoardDto boardDTO, Board board) throws Exception {
-		
-		//업로드 파일
-		if(boardDTO.getFiles() != null && boardDTO.getFiles().size() > 0) {
-			List<Map<String, String>>  mediaList = uploadFile(board, boardDTO.getFiles());
-			
-			//업로드 서버 요청 전달
-			for(Map<String, String> media : mediaList) {
-				Map<String, String> encodingParam = new HashMap();
-				encodingParam.put("mediaId", media.get("mediaId"));
-				encodingParam.put("type", media.get("type"));
-				encodingParam.put("originalFile", media.get("originalFile"));
-				encodingParam.put("returnUrl", encodeReturnUrl);
-				
-				given(httpRequestUtil.encodingRequest(encodingParam)).willReturn("success");
-				String postResult = httpRequestUtil.encodingRequest(encodingParam);
-				logger.info("postResult");
-				logger.info(postResult);
-			}	
-			
-		}		
-		
-	}	
-	
-	// 파일 업로드	
-	private List<Map<String,String>> uploadFile(Board board, List<MultipartFile> fileList) {
-		List<Map<String,String>> result = new ArrayList();
-		
-		LocalDate now = LocalDate.now();
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-		String dateFormat = now.format(dtf);
-		String originalPath = uploadPath + "original/" +  dateFormat + "/";
-		File dir = new File(originalPath);
-		
-		if(!dir.exists()) {
-			dir.mkdirs();
-		}
-		
-		try {
-			for(MultipartFile mf : fileList) {
-				String uuid = UUID.randomUUID().toString();
-				String extension = mf.getOriginalFilename().substring(mf.getOriginalFilename().lastIndexOf("."));
-				String originalFileName = uuid + extension;
-				File tempFile = new File(originalPath + originalFileName);
-				
-				mf.transferTo(tempFile);
-				
-				Media media = new Media();
-				media.setBoard(board);
-				media.setType(FileExtension.checkExtension(mf.getOriginalFilename()));
-				
-				if(media.getType().equals("document")) {
-					media.setStatus("success");
-					media.setPercent(100);
-				}else {
-					media.setStatus("wait");
-				}
-				
-				media.setOriginalFilePath(originalPath);
-				media.setOriginalFileName(originalFileName);
-				media.setOriginalFileClientName(mf.getOriginalFilename());
-				media.setOriginalFileSize(mf.getSize());			
-				
-				given(mediaRepository.save(media)).willReturn(media);
-				
-				Media newMedia = mediaRepository.save(media);
-				
-				if(media.getType().equals("video") || media.getType().equals("audio") || media.getType().equals("image")) {
-					Map<String, String> mediaMap = new HashMap();
-					mediaMap.put("mediaId", newMedia.getMediaId() + "");
-					mediaMap.put("type", newMedia.getType());
-					mediaMap.put("originalFile", newMedia.getOriginalFilePath() + newMedia.getOriginalFileName());
-					result.add(mediaMap);
-				}
-				
-			}			
-		}catch(IOException e) {
-			logger.error("ERROR : ", e);
-		}
-		
-		return result;
-	}
-	
-	@Test
-	public void updateBoard() throws Exception{
-		
-		BoardDto boardDto1 = new BoardDto();
-		boardDto1.setBoardId(1l);
-		
-		BoardDto boardDto2 = new BoardDto();
-		boardDto2.setBoardId(2l);
-				
-		List<MultipartFile> multiList = new ArrayList();
-		
-		//동영상
-		MockMultipartFile multiMock1 = new MockMultipartFile("video", "video.mp4", "video/mp4", "thumbnail".getBytes());
-		
-		//오디오
-		MockMultipartFile multiMock2 = new MockMultipartFile("audio", "audio.ogg", "audio/ogg", "thumbnail".getBytes());
-		
-		//이미지
-		MockMultipartFile multiMock3 = new MockMultipartFile("video", "image.jpg", "image/jpg", "thumbnail".getBytes());
-		
-		//문서
-		MockMultipartFile multiMock4 = new MockMultipartFile("video", "document.pdf", "application/pdf", "thumbnail".getBytes());
-		
-		multiList.add(multiMock1);
-		multiList.add(multiMock2);
-		multiList.add(multiMock3);
-		multiList.add(multiMock4);
-		
-		boardDto2.setFiles(multiList);
-		
-		List<BoardDto> paramList = new ArrayList();
-		paramList.add(boardDto1);
-		paramList.add(boardDto2);
-		
-		for(BoardDto boardDto : paramList) {
 
-			//given
-			Board boardMock = new Board();
-			boardMock.setBoardId(boardDto.getBoardId());
-			boardMock.setTitle("testTitle");
-			boardMock.setRegion("경기");
-			boardMock.setContents("test");
-			
-			given(boardRepository.findByBoardId(boardDto.getBoardId())).willReturn(boardMock);
-			
-			Board board = boardRepository.findByBoardId(boardDto.getBoardId());
-			board.setTitle(boardDto.getTitle());
-			board.setRegion(boardDto.getRegion());
-			board.setContents(boardDto.getContents());
-					
-			checkUploadFile(boardDto, board);
-			
-		}
+		boardDto.setFiles(multiList);
+
+		User user = new User();
+		user.setUserId(boardDto.getUserId());
+
+		Board board = new Board();
+		board.setUser(user);
+		board.setTitle(boardDto.getTitle());
+		board.setRegion(boardDto.getRegion());
+		board.setContents(boardDto.getContents());
+
+		Media media = new Media();
+		media.setType("video");
+		media.setMediaId(1L);
+		media.setOriginalFilePath("D:/NAS/upload/original/2024/05/19/");
+		media.setOriginalFileName("02238daa-6d43-4dc7-95a2-8f0c1d63ef95.jpg");
+
+		given(boardRepository.save(board)).willReturn(board);
+		given(mediaRepository.save(any(Media.class))).willReturn(media);
+
+		Map<String,Object> result = boardService.save(boardDto);
+
+		Assertions.assertThat(result.get("message")).isEqualTo("success");
 		
+	}
+	
+	@Test
+	@DisplayName("게시글 수정")
+	public void updateBoard() throws Exception{
+
+		//given
+		BoardDto boardDto = new BoardDto();
+		boardDto.setBoardId(2l);
+
+		List<MultipartFile> multiList = new ArrayList();
+
+		//동영상
+		MockMultipartFile multiMock1 = new MockMultipartFile("video", "video.mp4", "video/mp4", "thumbnail".getBytes());
+
+		//오디오
+		MockMultipartFile multiMock2 = new MockMultipartFile("audio", "audio.ogg", "audio/ogg", "thumbnail".getBytes());
+
+		//이미지
+		MockMultipartFile multiMock3 = new MockMultipartFile("video", "image.jpg", "image/jpg", "thumbnail".getBytes());
+
+		//문서
+		MockMultipartFile multiMock4 = new MockMultipartFile("video", "document.pdf", "application/pdf", "thumbnail".getBytes());
+
+		multiList.add(multiMock1);
+		multiList.add(multiMock2);
+		multiList.add(multiMock3);
+		multiList.add(multiMock4);
+
+		boardDto.setFiles(multiList);
+
+		Board board = new Board();
+		board.setBoardId(boardDto.getBoardId());
+		board.setTitle("testTitle");
+		board.setRegion("경기");
+		board.setContents("test");
+
+		Media media = new Media();
+		media.setType("video");
+		media.setMediaId(1L);
+		media.setOriginalFilePath("D:/NAS/upload/original/2024/05/19/");
+		media.setOriginalFileName("02238daa-6d43-4dc7-95a2-8f0c1d63ef95.jpg");
+
+		given(boardRepository.findByBoardId(boardDto.getBoardId())).willReturn(board);
+		given(mediaRepository.save(any(Media.class))).willReturn(media);
+
+		//When
+		Map<String, Object> result = boardService.updateBoard(boardDto);
+
+		//Then
+		Assertions.assertThat(result.get("message")).isEqualTo("success");
 	}
 	
 	
 	@Test
+	@DisplayName("게시글 삭제")
 	public void deleteBoard() throws Exception{
-		//HttpServletRequest request,
+
 		BoardDto boardDto = new BoardDto();
 		boardDto.setBoardIdArray("1,2");
 		
@@ -696,107 +481,115 @@ public class BoardServiceTest {
 		media4.setThumbnailPath("D:/NAS/upload/encoding/2024/01/24/87.jpg");
 		media4.setPercent(100);		
 		
-		List<Media> mediaListMock = new ArrayList();
-		mediaListMock.add(media1);
-		mediaListMock.add(media2);
-		mediaListMock.add(media3);
-		mediaListMock.add(media4);		
-				
-		
-		Map<String, Object> result = new HashMap();
-		
-		String[] boardIdArray = boardDto.getBoardIdArray().split(",");
-		
-		
-		for(String boardIdString : boardIdArray) {
-			
-			long boardId = Long.parseLong(boardIdString);
-			
-			given(mediaRepository.findByBoard_boardId(boardId)).willReturn(mediaListMock);
-			
-			// 미디어 삭제
-			List<Media> mediaList = mediaRepository.findByBoard_boardId(boardId);
-			
-			for(Media media: mediaList) {
-				
-				given(mediaRepository.findByMediaId(media.getMediaId())).willReturn(media);
-				mediaService.deleteMediaFile(media.getMediaId());			
-			}
+		List<Media> mediaList = new ArrayList();
+		mediaList.add(media1);
+		mediaList.add(media2);
+		mediaList.add(media3);
+		mediaList.add(media4);
 
-			// 게시글 삭제
-			boardRepository.deleteByBoardId(boardId);
-		}
-		
-		result.put("code", HttpServletResponse.SC_OK);
-		result.put("message", "boards deleted");
+		given(mediaRepository.findByBoard_boardId(any(Long.class))).willReturn(mediaList);
+
+		//When
+		Map<String, Object> result = boardService.deleteBoard(boardDto);
+
+		//Then
+		Assertions.assertThat(result.get("message")).isEqualTo("success");
 	}
 	
-	
-	/*
+
 	@Test
+	@DisplayName("의견 등록 : 의견이 있을 때")
 	public void postOpinion() throws Exception{
-		
-		UserDto userDto = new UserDto();
-		userDto.setUserId("testId");
-		Long boardId = 1l;
-		
-		User userMock = new User();
-		userMock.setUserId("testId");
-		
-		BoardDto boardDto1 = new BoardDto();
-		boardDto1.setUserDTO(userDto);
-		boardDto1.setBoardId(boardId);
-		boardDto1.setOpinion("Y");
-		
-		BoardDto boardDto2 = new BoardDto();
-		boardDto2.setUserDTO(userDto);
-		boardDto2.setBoardId(boardId);
-		boardDto2.setOpinion("N");
-		
-		//파라미터 리스트
-		List<BoardDto> testList = new ArrayList();
-		testList.add(boardDto1);
-		testList.add(boardDto2);
 
-		for(BoardDto temp : testList) {
+		BoardDto boardDto = new BoardDto();
+		boardDto.setBoardId(1L);
+		boardDto.setUserId("coolcjg");
+		boardDto.setValue("Y");
 
-			// case1 : 좋아요가 저장되어있지 않을 때
-			given(opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserId())).willReturn(null);
-			Alarm opinion = opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserId());
+		User user_click = new User();
+		user_click.setUserId("coolcjg");
 
-			given(userRepository.findByUserId(temp.getUserId())).willReturn(userMock);
-			User user = userRepository.findByUserId(temp.getUserId());
-			
-			Board boardMock = new Board();
-			boardMock.setBoardId(temp.getBoardId());
-			given(boardRepository.findByBoardId(temp.getBoardId())).willReturn(boardMock);
-			Board board = boardRepository.findByBoardId(temp.getBoardId());
-						
-			Alarm newOpinion = new Alarm();
-			newOpinion.setUser(user);
-			newOpinion.setBoard(board);
-			newOpinion.setOpinion(temp.getOpinion());
-			
-			given(opinionRepository.save(newOpinion)).willReturn(newOpinion);
-			Alarm savedOpinion = opinionRepository.save(newOpinion);
-			
-			Assertions.assertThat(savedOpinion).isEqualTo(newOpinion);
-			
-			
-			// case2 :  이미 저장되어 있을 때 
-			Alarm opinionMock =  new Alarm();
-			opinionMock.setUser(userMock);
-			opinionMock.setBoard(boardMock);
-			opinionMock.setOpinion("Z");
-			
-			given(opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserId())).willReturn(opinionMock);
-			Alarm savedOpinion2 = opinionRepository.findByBoard_boardIdAndUser_userId(temp.getBoardId(), temp.getUserId());
-			
-			savedOpinion2.setOpinion(temp.getOpinion());
-			
-		}
+		User user_board = new User();
+		user_board.setUserId("coolcjg1");
+
+		Board board = new Board();
+		board.setBoardId(boardDto.getBoardId());
+		board.setUser(user_board);
+
+		given(opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(null);
+		given(userRepository.findByUserId(boardDto.getUserId())).willReturn(user_click);
+		given(boardRepository.findByBoardId(boardDto.getBoardId())).willReturn(board);
+
+		Opinion opinion = new Opinion();
+		opinion.setUser(user_click);
+		opinion.setBoard(board);
+		opinion.setValue(boardDto.getValue());
+
+		given(opinionRepository.save(any(Opinion.class))).willReturn(opinion);
+
+		Alarm alarm = new Alarm();
+		alarm.setType(AlarmType.LIKE.getText());
+		alarm.setValue(opinion.getValue());
+		alarm.setBoard(board);
+		alarm.setFromUser(user_click);
+		alarm.setToUser(board.getUser());
+		alarm.setRegDate(LocalDateTime.now());
+
+		alarm.setToUser(user_board);
+
+		given(alarmRepository.save(any(Alarm.class))).willReturn(alarm);
+
+		AlarmDto alarmDto = new AlarmDto();
+		alarmDto.setAlarmId(alarm.getAlarmId());
+		alarmDto.setBoardId(alarm.getBoard().getBoardId());
+		alarmDto.setFromUserId(alarm.getFromUser().getUserId());
+		alarmDto.setToUserId(alarm.getToUser().getUserId());
+		alarmDto.setRegDate(DateFormat.convertDateFormat(alarm.getRegDate()));
+		alarmDto.setType(alarm.getType());
+		alarmDto.setValue(alarm.getValue());
+		alarmDto.setChecked(alarm.getChecked());
+
+		given(alarmService.setAlarmDto(any(Alarm.class))).willReturn(alarmDto);
+
+		Map<String, Object> result = boardService.postOpinion(boardDto);
+
+		Assertions.assertThat(result.get("message")).isEqualTo("success");
+
 	}
-	
+
+	@Test
+	@DisplayName("의견 등록 : 의견이 없을 때")
+	public void postOpinion_2() throws Exception{
+
+		BoardDto boardDto = new BoardDto();
+		boardDto.setBoardId(1L);
+		boardDto.setUserId("coolcjg");
+		boardDto.setValue("Y");
+
+		User user_click = new User();
+		user_click.setUserId("coolcjg");
+
+		User user_board = new User();
+		user_board.setUserId("coolcjg1");
+
+		Board board = new Board();
+		board.setBoardId(boardDto.getBoardId());
+		board.setUser(user_board);
+
+		Opinion opinion = new Opinion();
+		opinion.setUser(user_click);
+		opinion.setBoard(board);
+		opinion.setValue(boardDto.getValue());
+
+		given(opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(opinion);
+
+		Map<String, Object> result = boardService.postOpinion(boardDto);
+
+		Assertions.assertThat(result.get("message")).isEqualTo("success");
+	}
+
+
+	/*
 	@Test
 	public void deleteOpinion() throws Exception{
 		

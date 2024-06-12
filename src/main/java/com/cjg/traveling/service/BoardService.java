@@ -171,7 +171,7 @@ public class BoardService {
 		Board board = boardRepository.findByBoardId(boardId);
 		
 		if(board == null) {
-			map.put("message", "게시글이 존재하지 않습니다.");
+			map.put("message", "Board is not exists");
 			return map; 
 		}
 		
@@ -285,7 +285,7 @@ public class BoardService {
 	}
 
 	// 파일 업로드	
-	private List<Map<String,String>> uploadFile(Board board, List<MultipartFile> fileList) {
+	private List<Map<String,String>> uploadFile(Board board, List<MultipartFile> fileList) throws Exception {
 		List<Map<String,String>> result = new ArrayList();
 		
 		LocalDate now = LocalDate.now();
@@ -293,51 +293,45 @@ public class BoardService {
 		String dateFormat = now.format(dtf);
 		String originalPath = uploadPath + "original/" +  dateFormat + "/";
 		File dir = new File(originalPath);
-		
-		if(!dir.exists()) {
-			dir.mkdirs();
-		}
-		
-		try {
-			for(MultipartFile mf : fileList) {
-				String uuid = UUID.randomUUID().toString();
-				String extension = mf.getOriginalFilename().substring(mf.getOriginalFilename().lastIndexOf("."));
-				String originalFileName = uuid + extension;
-				File tempFile = new File(originalPath + originalFileName);
-				
-				mf.transferTo(tempFile);
-				
-				Media media = new Media();
-				media.setBoard(board);
-				media.setType(FileExtension.checkExtension(mf.getOriginalFilename()));
-				
-				if(media.getType().equals("document")) {
-					media.setStatus("success");
-					media.setPercent(100);
-				}else {
-					media.setStatus("wait");
-				}
-				
-				media.setOriginalFilePath(originalPath);
-				media.setOriginalFileName(originalFileName);
-				media.setOriginalFileClientName(mf.getOriginalFilename());
-				media.setOriginalFileSize(mf.getSize());			
-				
-				Media newMedia = mediaRepository.save(media);
-				System.out.println("new Media");
-				System.out.println(newMedia);
-				
-				if(media.getType().equals("video") || media.getType().equals("audio") || media.getType().equals("image")) {
-					Map<String, String> mediaMap = new HashMap();
-					mediaMap.put("mediaId", newMedia.getMediaId() + "");
-					mediaMap.put("type", newMedia.getType());
-					mediaMap.put("originalFile", newMedia.getOriginalFilePath() + newMedia.getOriginalFileName());
-					result.add(mediaMap);
-				}
-				
-			}			
-		}catch(IOException e) {
-			logger.error("ERROR : ", e);
+
+		dir.mkdirs();
+
+		for(MultipartFile mf : fileList) {
+			String uuid = UUID.randomUUID().toString();
+			String extension = mf.getOriginalFilename().substring(mf.getOriginalFilename().lastIndexOf("."));
+			String originalFileName = uuid + extension;
+			File tempFile = new File(originalPath + originalFileName);
+
+			mf.transferTo(tempFile);
+
+			Media media = new Media();
+			media.setBoard(board);
+			media.setType(FileExtension.checkExtension(mf.getOriginalFilename()));
+
+			if(media.getType().equals("document")) {
+				media.setStatus("success");
+				media.setPercent(100);
+			}else {
+				media.setStatus("wait");
+			}
+
+			media.setOriginalFilePath(originalPath);
+			media.setOriginalFileName(originalFileName);
+			media.setOriginalFileClientName(mf.getOriginalFilename());
+			media.setOriginalFileSize(mf.getSize());
+
+			Media newMedia = mediaRepository.save(media);
+			System.out.println("new Media");
+			System.out.println(newMedia);
+
+			if(media.getType().equals("video") || media.getType().equals("audio") || media.getType().equals("image")) {
+				Map<String, String> mediaMap = new HashMap();
+				mediaMap.put("mediaId", newMedia.getMediaId() + "");
+				mediaMap.put("type", newMedia.getType());
+				mediaMap.put("originalFile", newMedia.getOriginalFilePath() + newMedia.getOriginalFileName());
+				result.add(mediaMap);
+			}
+
 		}
 		
 		return result;
@@ -409,9 +403,7 @@ public class BoardService {
 			
 			
 			//Alarm테이블 처리(여기 작업해야함)
-			if(!board.getUser().getUserId().equals(user.getUserId())
-					&& //alarmRepository.findByBoard_boardIdAndFromUser_userId(boardDto.getBoardId(), boardDto.getUserId()).size() == 0) {
-					true) {
+			if(!board.getUser().getUserId().equals(user.getUserId())) {
 				
 				// Alarm테이블 저장
 				Alarm newAlarm = new Alarm();
@@ -427,8 +419,6 @@ public class BoardService {
 				String opinionString = gson.toJson(alarmService.setAlarmDto(savedAlarm));
 				
 				kafkaProducer.create("opinion", opinionString);				
-			}else {
-				logger.info("알람 이미 존재함");
 			}
 			
 		}else {
