@@ -44,19 +44,14 @@ public class JwtService {
 				}
 			}
 		}catch(ExpiredJwtException e) {
-			result.put("code", HttpServletResponse.SC_UNAUTHORIZED);
 			result.put("message", "ExpiredJwtException");			
 		}catch(UnsupportedJwtException e) {
-			result.put("code", HttpServletResponse.SC_UNAUTHORIZED);
 			result.put("message", "UnsupportedJwtException");
 		}catch(MalformedJwtException e) {
-			result.put("code", HttpServletResponse.SC_UNAUTHORIZED);
 			result.put("message", "MalformedJwtException");
 		}catch(SignatureException e) {
-			result.put("code", HttpServletResponse.SC_UNAUTHORIZED);
 			result.put("message", "SignatureException");
 		}catch(IllegalArgumentException e) {
-			result.put("code", HttpServletResponse.SC_UNAUTHORIZED);
 			result.put("message", "IllegalArgumentException");
 		}
 		
