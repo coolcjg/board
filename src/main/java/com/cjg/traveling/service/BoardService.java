@@ -1,15 +1,15 @@
 package com.cjg.traveling.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import com.cjg.traveling.common.FileExtension;
+import com.cjg.traveling.common.HttpRequestUtil;
+import com.cjg.traveling.common.Jwt;
+import com.cjg.traveling.common.PageUtil;
+import com.cjg.traveling.common.kafka.KafkaProducer;
+import com.cjg.traveling.domain.*;
+import com.cjg.traveling.dto.*;
+import com.cjg.traveling.repository.*;
+import com.cjg.traveling.status.AlarmType;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,33 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cjg.traveling.common.DateFormat;
-import com.cjg.traveling.common.FileExtension;
-import com.cjg.traveling.common.HttpRequestUtil;
-import com.cjg.traveling.common.Jwt;
-import com.cjg.traveling.common.PageUtil;
-import com.cjg.traveling.common.kafka.KafkaProducer;
-import com.cjg.traveling.domain.Alarm;
-import com.cjg.traveling.domain.Board;
-import com.cjg.traveling.domain.Media;
-import com.cjg.traveling.domain.Opinion;
-import com.cjg.traveling.domain.User;
-import com.cjg.traveling.dto.AlarmDto;
-import com.cjg.traveling.dto.BoardDto;
-import com.cjg.traveling.dto.BoardSpecs;
-import com.cjg.traveling.dto.MediaDto;
-import com.cjg.traveling.dto.OpinionDto;
-import com.cjg.traveling.dto.UserDto;
-import com.cjg.traveling.repository.AlarmRepository;
-import com.cjg.traveling.repository.BoardRepository;
-import com.cjg.traveling.repository.MediaRepository;
-import com.cjg.traveling.repository.OpinionRepository;
-import com.cjg.traveling.repository.UserRepository;
-import com.cjg.traveling.status.AlarmType;
-import com.google.gson.Gson;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -88,18 +65,17 @@ public class BoardService {
 	
 	@Autowired
 	private AlarmService alarmService;
-	
+
 	@Autowired
 	private KafkaProducer kafkaProducer;	
-	
+
 	@Value("${uploadPath}")
-	private String uploadPath;
-	
+	public String uploadPath;
 	
 	@Value("${serverUrl}")
 	private String serverUrl;
-	
-	public Map<String, Object> list(Map<String, String> map){
+
+    public Map<String, Object> list(Map<String, String> map){
 		
 		Map<String, Object> result = new HashMap<String, Object>();
 		

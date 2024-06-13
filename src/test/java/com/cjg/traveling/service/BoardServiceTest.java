@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -82,10 +83,10 @@ public class BoardServiceTest {
 
 	@InjectMocks
 	private BoardService boardService;
-	
+
 	@Value("${uploadPath}")
 	private static String uploadPath;
-	
+
 	@Value("${serverUrl}")
 	private static String serverUrl;
 	
@@ -94,7 +95,7 @@ public class BoardServiceTest {
 	
 	@BeforeAll
 	public static void setUp() {
-	    ReflectionTestUtils.setField(BoardServiceTest.class, "uploadPath", "D:/NAS/upload11/");
+	    ReflectionTestUtils.setField(BoardServiceTest.class, "uploadPath", "D:/NAS/uploadTest/");
 	    ReflectionTestUtils.setField(BoardServiceTest.class, "serverUrl", "http://localhost:8080");
 	    ReflectionTestUtils.setField(BoardServiceTest.class, "encodeReturnUrl", "http://localhost:8080/api/encodingResult");
 	}	
@@ -361,6 +362,7 @@ public class BoardServiceTest {
 		given(boardRepository.save(board)).willReturn(board);
 		given(mediaRepository.save(any(Media.class))).willReturn(media);
 
+		boardService.uploadPath = uploadPath;
 		Map<String,Object> result = boardService.save(boardDto);
 
 		Assertions.assertThat(result.get("message")).isEqualTo("success");
@@ -412,6 +414,7 @@ public class BoardServiceTest {
 		given(mediaRepository.save(any(Media.class))).willReturn(media);
 
 		//When
+		boardService.uploadPath=uploadPath;
 		Map<String, Object> result = boardService.updateBoard(boardDto);
 
 		//Then
@@ -589,8 +592,9 @@ public class BoardServiceTest {
 	}
 
 
-	/*
+
 	@Test
+	@DisplayName("게시글 삭제 성공")
 	public void deleteOpinion() throws Exception{
 		
 		BoardDto boardDto = new BoardDto();
@@ -598,66 +602,74 @@ public class BoardServiceTest {
 		boardDto.setUserId("testId");
 		
 		given(opinionRepository.deleteByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(1L);
-		Long deleteResult = opinionRepository.deleteByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
-		
-		Assertions.assertThat(deleteResult).isEqualTo(1L);
+		Map<String, Object> result = boardService.deleteOpinion(boardDto);
+
+		Assertions.assertThat(result.get("message")).isEqualTo("success");
 		
 	}
-	
-	
+
 	@Test
+	@DisplayName("게시글 삭제 실패")
+	public void deleteOpinion_2() throws Exception{
+		BoardDto boardDto = new BoardDto();
+		boardDto.setBoardId(1l);
+		boardDto.setUserId("testId");
+
+		given(opinionRepository.deleteByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(0L);
+		Map<String, Object> result = boardService.deleteOpinion(boardDto);
+
+		Assertions.assertThat(result.get("message")).isEqualTo("fail");
+	}
+	
+
+	@Test
+	@DisplayName("사용자 의견 가져오기")
 	public void getUserOpinion() throws Exception{
-		Map<String, Object> result = new HashMap();
-		
+
 		BoardDto boardDto = new BoardDto();
 		boardDto.setBoardId(1L);
-		boardDto.setUserId("testId");
-		
-		Alarm opinionMock = new Alarm();
-		
-		User userMock = new User();
-		userMock.setUserId("testId");
-		
-		Board boardMock = new Board();
-		boardMock.setBoardId(1l);
-		
-		opinionMock.setUser(userMock);
-		opinionMock.setBoard(boardMock);
-		opinionMock.setOpinion("Y");
-		
-		given(opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(null);
-		Alarm opinion = opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
-		
-		if(opinion == null) {
-			result.put("opinion", "");
-		}else {
-			OpinionDto opinionDto = new OpinionDto();
-			opinionDto.setBoardId(opinion.getBoard().getBoardId());
-			opinionDto.setUserId(opinion.getUser().getUserId());
-			opinionDto.setOpinion(opinion.getOpinion());
-			result.put("opinion", opinionDto);
-		}
-		
-		given(opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(opinionMock);
-		opinion = opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
-		
-		if(opinion == null) {
-			result.put("opinion", "");
-		}else {
-			OpinionDto opinionDto = new OpinionDto();
-			opinionDto.setBoardId(opinion.getBoard().getBoardId());
-			opinionDto.setUserId(opinion.getUser().getUserId());
-			opinionDto.setOpinion(opinion.getOpinion());
-			result.put("opinion", opinionDto);
-			
-			assertThat(opinionDto.getOpinion()).isEqualTo(opinionMock.getOpinion());
-		}
-		
-		result.put("code", HttpServletResponse.SC_OK);
-		result.put("message", "get opinion completed");
-		
+		boardDto.setUserId("coolcjg");
+
+		User user = new User();
+		user.setUserId(boardDto.getUserId());
+
+		Board board = new Board();
+		board.setBoardId(boardDto.getBoardId());
+
+		Opinion opinion = new Opinion();
+		opinion.setUser(user);
+		opinion.setOpinionId(1L);
+		opinion.setBoard(board);
+		opinion.setValue("Y");
+		opinion.setRegDate(LocalDateTime.now());
+
+		given(opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(opinion);
+		Map<String, Object> result= boardService.getUserOpinion(boardDto);
+
+		assertThat(result.get("message")).isEqualTo("success");
 						
 	}
-	*/
+
+	@Test
+	@DisplayName("사용자 의견 가져오기, 의견이 없을 때")
+	public void getUserOpinion_2() throws Exception{
+
+		BoardDto boardDto = new BoardDto();
+		boardDto.setBoardId(1L);
+		boardDto.setUserId("coolcjg");
+
+		User user = new User();
+		user.setUserId(boardDto.getUserId());
+
+		Board board = new Board();
+		board.setBoardId(boardDto.getBoardId());
+
+		given(opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(null);
+		Map<String, Object> result= boardService.getUserOpinion(boardDto);
+
+		assertThat(result.get("message")).isEqualTo("success");
+
+	}
+
 }
 
