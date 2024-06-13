@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -37,6 +38,7 @@ public class UserService {
 	@Autowired
 	private Encrypt encrypt;
 	
+	@Setter
 	@Value("${serverUrl}")
 	private String serverUrl;	
 	
@@ -172,7 +174,7 @@ public class UserService {
 				map.put("name", user.getName());
 				map.put("auth", user.getAuth());
 			}else {
-				map.put("code", "password not match");
+				map.put("message", "password not match");
 			}
 		}
 		
