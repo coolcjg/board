@@ -1,22 +1,18 @@
 package com.cjg.traveling.common;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.cjg.traveling.domain.User;
-import com.cjg.traveling.repository.UserRepository;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class Jwt {
@@ -25,28 +21,7 @@ public class Jwt {
 	private static final String SECRET_KEY = "ChopinBlackKeyChopinBlackKeyChopinBlackKeyChopinBlackKey";
 	
 	private Logger logger = LoggerFactory.getLogger(Jwt.class);
-	
-	@Autowired
-	private UserRepository userRepository;	
 
-	
-	/*
-	public static void main(String[] args){
-		
-		Map<String, String> param = new HashMap();
-		param.put("id", "sampleId");
-		param.put("name", "sampleName");
-		
-		String token = createAccessToken(param);
-		System.out.println("JWT Token : " + token);
-		
-		// 생성된 JWT토큰 검증
-		boolean isValid = validateJwtToken(token);
-		System.out.println("JWT Token Validation : " + isValid);
-		
-	}
-	*/
-	
 	// JWT 토큰 생성
 	public String createAccessToken(User user) {
 		
@@ -115,11 +90,7 @@ public class Jwt {
 		return true;
 		
 	}
-	
 
-	
-	
-	
 	public String getUserId(String token) {
 		
 		Jws<Claims> claims = Jwts.parserBuilder()
@@ -130,10 +101,4 @@ public class Jwt {
 		return claims.getBody().get("id").toString();
 		
 	}
-	
-
-	
-	
-	
-
 }
