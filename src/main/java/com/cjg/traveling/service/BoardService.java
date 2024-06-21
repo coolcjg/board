@@ -388,6 +388,7 @@ public class BoardService {
 				newAlarm.setBoard(board);
 				newAlarm.setFromUser(user);
 				newAlarm.setToUser(board.getUser());
+				newAlarm.setChecked("N");
 				Alarm savedAlarm = alarmRepository.save(newAlarm);
 				
 				// KAFKA PRODUCER 처리				

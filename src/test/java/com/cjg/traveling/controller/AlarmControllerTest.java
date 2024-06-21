@@ -22,6 +22,7 @@ import org.springframework.util.MultiValueMap;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -95,20 +96,13 @@ public class AlarmControllerTest {
         String userId = "coolcjg";
         Long alarmId = 2L;
 
-        User user = new User();
-        user.setUserId(userId);
-        user.setName("최종규");
-        String accessToken = jwt.createAccessToken(user);
-
         Map<String, Object> result = new HashMap();
         result.put("message", "success");
 
-        given(jwt.getUserId(accessToken)).willReturn(userId);
+        given(jwt.getUserId(any())).willReturn(userId);
         given(alarmService.delete(alarmId, userId)).willReturn(result);
 
-        mvc.perform(delete("/alarm")
-                        .param("alarmId", String.valueOf(alarmId))
-                    )
+        mvc.perform(delete("/alarm/" + alarmId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("success"))
                 .andDo(print());

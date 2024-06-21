@@ -25,8 +25,8 @@ public class AlarmController {
 		return alarmService.list(map);
 	}
 	
-	@DeleteMapping("/alarm")
-	public Map<String, Object> deleteAlarm(HttpServletRequest request, @RequestParam long alarmId){
+	@DeleteMapping("/alarm/{alarmId}")
+	public Map<String, Object> deleteAlarm(HttpServletRequest request, @PathVariable Long alarmId){
 		String accessToken = request.getHeader("accessToken");
 		String userId = jwt.getUserId(accessToken);
 
