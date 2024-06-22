@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class AlarmDto {
-	
+
+	/*테스트*/
 	private Long alarmId;
 	private Long boardId;
 	private String fromUserId;
