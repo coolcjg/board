@@ -69,4 +69,8 @@ bootJar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+jar {
+	enabled = false
+}
+
 
