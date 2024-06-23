@@ -67,9 +67,11 @@ public class MediaService {
 		}
 		
 		if(media.getType().equals("video")) {
-			File thumbFile = new File(media.getThumbnailPath());
-			if(thumbFile.isFile()) {
-				thumbFile.delete();
+			if(media.getThumbnailPath() != null){
+				File thumbFile = new File(media.getThumbnailPath());
+				if(thumbFile.isFile()) {
+					thumbFile.delete();
+				}
 			}
 		}
 		
