@@ -29,7 +29,7 @@ public class HttpRequestUtil {
 		
 		String myResult = "";
 				
-		URL url = new URL(encodeServerUrl);
+		URL url = new URL(encodeServerUrl + "/batch");
 		
 		HttpURLConnection http = (HttpURLConnection) url.openConnection();
 		
