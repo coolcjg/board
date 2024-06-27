@@ -15,6 +15,11 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: 테스트를 위해 운영 설정파일을 복사한다.
+        run: |
+          cp ./src/main/resources/application-prod.properties ./src/main/resources/application.properties
+
       ## gradlew 의 권한을 줍니다.
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
