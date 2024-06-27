@@ -21,7 +21,7 @@ jobs:
 
       ## gradle build
       - name: Build with Gradle
-        run: ./gradlew clean build --info --exclude-task test
+        run: ./gradlew clean build --info
       ## 이미지 태그에 시간 설정을 하기위해서 현재 시간을 가져옵니다.
       - name: Get current time
         uses: 1466587594/get-current-time@v2
@@ -56,18 +56,18 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: .ecs/prod/task.json # task파일
-          container-name: board #이미지 컨테이너 이름
-          image: ${{ steps.build-image.outputs.image }}
-
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{steps.task-def.outputs.task-definition}}
-          service: service-board #클러스터 서비스 명
-          cluster: cluster-board # 클러스터 명
-          wait-for-service-stability: true
+#      - name: Fill in the new image ID in the Amazon ECS task definition
+#        id: task-def
+#        uses: aws-actions/amazon-ecs-render-task-definition@v1
+#        with:
+#          task-definition: .ecs/prod/task.json # task파일
+#          container-name: board #이미지 컨테이너 이름
+#          image: ${{ steps.build-image.outputs.image }}
+#
+#      - name: Deploy Amazon ECS task definition
+#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+#        with:
+#          task-definition: ${{steps.task-def.outputs.task-definition}}
+#          service: service-board #클러스터 서비스 명
+#          cluster: cluster-board # 클러스터 명
+#          wait-for-service-stability: true
