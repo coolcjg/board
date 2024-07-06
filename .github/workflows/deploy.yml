@@ -93,9 +93,12 @@ jobs:
       # 새 이미지 버전으로 파일의 태그값 수정
       # cd path 수정
       # kustomize 로 image tag 값 변경
-      - name: Update Kubernetes resources test
+      - name: Update Kubernetes resources test test
         run: |
           pwd
+          echo ${{ steps.build-image.env.ECR_REGISTRY }}
+          echo ${{ steps.build-image.env.ECR_REPOSITORY }}
+          echo ${{ steps.build-image.env.IMAGE_TAG }}
           cd eks/src/main/resources/eks/overlays/dev
           kustomize edit set image ${{ steps.build-image.env.ECR_REGISTRY }}/${{ steps.build-image.env.ECR_REPOSITORY }}:${{ steps.build-image.env.IMAGE_TAG }}
           cat kustomization.yaml
