@@ -77,7 +77,7 @@ jobs:
 #          cluster: cluster-board # 클러스터 명
 #          wait-for-service-stability: true
 
-      - name: Setup Kustomize
+      - name: Setup Kustomize test
         uses: imranismail/setup-kustomize@v1
 
       - name: Checkout for Kustomize repository
