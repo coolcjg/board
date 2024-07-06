@@ -97,7 +97,7 @@ jobs:
         run: |
           pwd
           cd eks/src/main/resources/eks/overlays/dev
-          kustomize edit set image ${{ steps.build-image.env.ECR_REGISTRY }}/${{ steps.build-image.env.ECR_REPOSITORY }}=${{ steps.build-image.env.ECR_REGISTRY }}/${{ steps.build-image.env.ECR_REPOSITORY }}:${{ steps.build-image.env.IMAGE_TAG }}
+          kustomize edit set image ${{ steps.build-image.env.ECR_REGISTRY }}/${{ steps.build-image.env.ECR_REPOSITORY }}:${{ steps.build-image.env.IMAGE_TAG }}
           cat kustomization.yaml
 
       # 수정된 kustomization.yaml 파일 commit push
