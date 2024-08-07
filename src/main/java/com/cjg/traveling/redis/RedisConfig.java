@@ -25,17 +25,20 @@ public class RedisConfig {
 		final LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(host, port);
 		return lettuceConnectionFactory;
 	}
-	
+
+	/*
 	@Bean
 	public MessageListenerAdapter listenerAdapter(RedisSubscriber subscriber) {
-		return new MessageListenerAdapter(subscriber, "sendMessage");
+		return new MessageListenerAdapter(subscriber, "onMessage");
 	}
+	*/
 	
 	@Bean
 	public ChannelTopic channelTopic() {
 		return new ChannelTopic("alarm");
 	}
-	
+
+	/*
 	@Bean
 	public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory,
 																MessageListenerAdapter listenerAdapter,
@@ -45,7 +48,8 @@ public class RedisConfig {
 		container.addMessageListener(listenerAdapter, channelTopic);
 		return container;
 	}
-	
+	*/
+
 	@Bean
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory){
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
