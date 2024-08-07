@@ -7,6 +7,7 @@ import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.common.kafka.KafkaProducer;
 import com.cjg.traveling.domain.*;
 import com.cjg.traveling.dto.*;
+import com.cjg.traveling.redis.RedisPublisher;
 import com.cjg.traveling.repository.*;
 import com.cjg.traveling.status.AlarmType;
 import com.google.gson.Gson;
@@ -74,6 +75,9 @@ public class BoardService {
 	
 	@Value("${serverUrl}")
 	private String serverUrl;
+
+	@Autowired
+	private RedisPublisher redisPublisher;
 
     public Map<String, Object> list(Map<String, String> map){
 		
@@ -252,9 +256,12 @@ public class BoardService {
 				encodingParam.put("type", media.get("type"));
 				encodingParam.put("originalFile", media.get("originalFile"));
 				encodingParam.put("returnUrl", serverUrl + "/api/encodingResult");
-				String postResult = httpRequestUtil.encodingRequest(encodingParam);
-				logger.info("postResult");
-				logger.info(postResult);
+
+				// KAFKA PRODUCER 처리
+				Gson gson = new Gson();
+				String opinionString = gson.toJson(encodingParam);
+				kafkaProducer.create("encoding", opinionString);
+
 			}			
 		}		
 		
@@ -391,11 +398,11 @@ public class BoardService {
 				newAlarm.setChecked("N");
 				Alarm savedAlarm = alarmRepository.save(newAlarm);
 				
-				// KAFKA PRODUCER 처리				
+				// REDIS PUB
 				Gson gson = new Gson();
 				String opinionString = gson.toJson(alarmService.setAlarmDto(savedAlarm));
-				
-				kafkaProducer.create("opinion", opinionString);				
+
+				redisPublisher.sendMessage(opinionString);
 			}
 			
 		}else {
