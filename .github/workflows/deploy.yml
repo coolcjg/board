@@ -97,7 +97,7 @@ jobs:
         run: |
           pwd
           echo ${{ steps.build-image.outputs.image }}
-          cd eks/src/main/resources/eks
+          cd eks
           kustomize edit set image ${{ steps.build-image.outputs.image }}
           cat kustomization.yaml
 
