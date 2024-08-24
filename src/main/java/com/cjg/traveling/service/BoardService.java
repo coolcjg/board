@@ -120,6 +120,7 @@ public class BoardService {
 			temp.setRegion(board.getRegion());
 			temp.setTitle(board.getTitle());
 			temp.setView(board.getView());
+			temp.setCommentCount(board.getCommentList().size());
 			
 			UserDto userDTO = new UserDto();
 			userDTO.setName(board.getUser().getName());

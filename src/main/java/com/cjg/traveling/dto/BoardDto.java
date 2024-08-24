@@ -51,4 +51,6 @@ public class BoardDto {
 	
 	private String value;
 
+	private int commentCount;
+
 }

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -53,14 +54,15 @@ public class Board {
 	// 수정일
 	@LastModifiedDate
 	private Date modDate;
-	
-	
+
 	@OneToMany(mappedBy="board", orphanRemoval = true)
 	private List<Media> mediaList;
+
+	@OneToMany(mappedBy="board", orphanRemoval = true)
+	@BatchSize(size=10)
+	private List<Comment> commentList;
 	
 	// 조회수
 	@Column(columnDefinition = "integer default 0")
 	private int view;
-	
-	
 }
