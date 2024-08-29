@@ -120,7 +120,7 @@ public class BoardService {
 			temp.setRegion(board.getRegion());
 			temp.setTitle(board.getTitle());
 			temp.setView(board.getView());
-			temp.setCommentCount(board.getCommentList().size());
+			temp.setCommentCount(board.getCommentList() ==  null ? 0 : board.getCommentList().size());
 			
 			UserDto userDTO = new UserDto();
 			userDTO.setName(board.getUser().getName());
@@ -446,5 +446,24 @@ public class BoardService {
 
 		result.put("message", "success");
 		return result;
+	}
+
+	public Map<String, Object> findByBoardIdTest(long boardId) {
+
+		Map<String, Object> map = new HashMap();
+		BoardDto boardDTO = new BoardDto();
+		Board board = boardRepository.findTest(boardId);
+
+		System.out.println("aaaaaa : " + board);
+
+		if(board == null) {
+			map.put("message", "Board is not exists");
+			return map;
+		}
+
+		map.put("board", boardDTO);
+		map.put("message", "success");
+
+		return map;
 	}
 }

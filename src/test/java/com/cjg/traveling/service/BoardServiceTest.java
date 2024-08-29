@@ -8,6 +8,7 @@ import com.cjg.traveling.domain.*;
 import com.cjg.traveling.dto.AlarmDto;
 import com.cjg.traveling.dto.BoardDto;
 import com.cjg.traveling.dto.UserDto;
+import com.cjg.traveling.redis.RedisPublisher;
 import com.cjg.traveling.repository.*;
 import com.cjg.traveling.status.AlarmType;
 import org.assertj.core.api.Assertions;
@@ -92,6 +93,9 @@ public class BoardServiceTest {
 	
 	@Value("${encodeReturnUrl}")
 	private static String encodeReturnUrl;
+
+	@Mock
+	private RedisPublisher redisPublisher;
 	
 	@BeforeAll
 	public static void setUp() {
