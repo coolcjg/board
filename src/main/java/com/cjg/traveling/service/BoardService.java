@@ -19,7 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -93,13 +92,8 @@ public class BoardService {
 		
 		boardDTO.setPageNumber(pageNumber);
 		Pageable pageable = PageRequest.of(boardDTO.getPageNumber()-1, 10, Sort.Direction.DESC, "regDate");
-		Page<Board> page;
-		
-		if(dto.getSearchText().isEmpty()) {
-			page = boardRepository.selectBoardPage(pageable);
-		}else {
-			page = boardRepository.selectBoardPage(pageable, dto.getSearchType(), dto.getSearchText());
-		}
+
+		Page<Board> page = boardRepository.selectBoardPage(pageable, dto.getSearchType(), dto.getSearchText());
 		
 		List<BoardDto> boardList = new ArrayList();
 		

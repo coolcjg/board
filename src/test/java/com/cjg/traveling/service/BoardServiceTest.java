@@ -23,11 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.*;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -149,10 +145,11 @@ public class BoardServiceTest {
 		boardList.add(boardMock4);
 		boardList.add(boardMock5);
 
-		Pageable pageableMock = PageRequest.of(0, 10);
+		Pageable pageableMock = PageRequest.of(boardSearchDto.getPageNumber()-1, 10, Sort.Direction.DESC, "regDate");
 		Page<Board> page = new PageImpl<>(boardList, pageableMock, 10L);
 
-		given(boardRepository.selectBoardPage(any(Pageable.class))).willReturn(page);
+		given(boardRepository.selectBoardPage(pageableMock,boardSearchDto.getSearchType(), boardSearchDto.getSearchText()))
+				.willReturn(page);
 
 		Map<String,Object> result  = boardService.list(boardSearchDto);
 
@@ -201,10 +198,10 @@ public class BoardServiceTest {
 		boardList.add(boardMock4);
 		boardList.add(boardMock5);
 
-		Pageable pageableMock = PageRequest.of(0, 10);
+		Pageable pageableMock = PageRequest.of(boardSearchDto.getPageNumber()-1, 10, Sort.Direction.DESC, "regDate");
 		Page<Board> page = new PageImpl<>(boardList, pageableMock, 10L);
 
-		given(boardRepository.findAll(any(PageRequest.class))).willReturn(page);
+		given(boardRepository.selectBoardPage(pageableMock, boardSearchDto.getSearchType(), boardSearchDto.getSearchText())).willReturn(page);
 
 		Map<String,Object> result  = boardService.list(boardSearchDto);
 
