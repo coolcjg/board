@@ -37,7 +37,11 @@ public class SecurityConfig {
 	@Value("${reactDomain}")
 	String reactDoamin;
 
-	
+
+	/*
+	UsernamePasswordAuthenticationFilter.class에서 기본적으로 username/password방식으로 인증처리가 된다.
+	JWT관련 JwtTokenFilter를 사용할 예정이므로 addFilterBefore를 사용하여 JwtTokenFilter가 먼저 걸리게 한다.
+	 */
 	@Bean
 	protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 		

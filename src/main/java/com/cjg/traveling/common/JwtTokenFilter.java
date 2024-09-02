@@ -26,7 +26,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 	
 	@Autowired
 	private Jwt jwt;
-	
+
+	/*
+	인증 성공시 Authentication객체를 생성하여 SecurityContextHolder에 저장한다.
+	이후 실행되는 UsernamePasswordAuthenticationFilter는 이미 인증이 완료된 상태이다.
+	다음 필터로 계속 전달되면서 컨트롤러까지 요청이 지나간다.
+	 */
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException,  IOException{
 		
