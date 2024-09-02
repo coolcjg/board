@@ -72,10 +72,4 @@ public class BoardController {
 	public Map<String, Object> getUserOpinion(@RequestBody BoardDto boardDTO) throws Exception{
 		return boardService.getUserOpinion(boardDTO);
 	}
-
-	@GetMapping(value ="/board/query/{boardId}")
-	public Map<String, Object> boardquery(HttpServletRequest request, @PathVariable("boardId") long boardId) throws Exception{
-		return boardService.findByBoardIdTest(boardId);
-	}
-	
 }

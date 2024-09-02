@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -80,7 +81,9 @@ public class BoardService {
 	private RedisPublisher redisPublisher;
 
     public Map<String, Object> list(Map<String, String> map){
-		
+
+		System.out.println("PARAM : " + map);
+
 		Map<String, Object> result = new HashMap<String, Object>();
 		
 		BoardDto boardDTO = new BoardDto();
@@ -91,22 +94,13 @@ public class BoardService {
 		}
 		
 		boardDTO.setPageNumber(pageNumber);
-		
-		Specification<Board> specification = null;
-		if(map.get("searchText") != null && !map.get("searchText").isEmpty()) {
-			Map<String, Object> whereParam = new HashMap<String, Object>();
-			whereParam.put("searchType", map.get("searchType"));
-			whereParam.put("searchText", map.get("searchText"));
-			specification = BoardSpecs.searchWith(whereParam);
-		}
-				
-		PageRequest pageRequest = PageRequest.of(boardDTO.getPageNumber()-1, 10, Sort.Direction.DESC, "regDate");
+		Pageable pageable = PageRequest.of(boardDTO.getPageNumber()-1, 10, Sort.Direction.DESC, "regDate");
 		Page<Board> page;
 		
-		if(specification == null) {
-			page = boardRepository.findAll(pageRequest);
+		if(map.get("searchText") == null || map.get("searchText").equals("")) {
+			page = boardRepository.selectBoardPage(pageable);
 		}else {
-			page = boardRepository.findAll(specification, pageRequest);
+			page = boardRepository.selectBoardPage(pageable, map.get("searchType"), map.get("searchText"));
 		}
 		
 		List<BoardDto> boardList = new ArrayList();
@@ -443,24 +437,5 @@ public class BoardService {
 
 		result.put("message", "success");
 		return result;
-	}
-
-	public Map<String, Object> findByBoardIdTest(long boardId) {
-
-		Map<String, Object> map = new HashMap();
-		BoardDto boardDTO = new BoardDto();
-		Board board = boardRepository.findTest(boardId);
-
-		System.out.println("aaaaaa : " + board);
-
-		if(board == null) {
-			map.put("message", "Board is not exists");
-			return map;
-		}
-
-		map.put("board", boardDTO);
-		map.put("message", "success");
-
-		return map;
 	}
 }
