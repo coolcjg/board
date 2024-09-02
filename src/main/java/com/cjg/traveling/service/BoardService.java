@@ -348,10 +348,7 @@ public class BoardService {
 			long boardId = Long.parseLong(boardIdString);
 			
 			// 미디어 삭제
-			List<Media> mediaList = mediaRepository.findByBoard_boardId(boardId);
-			for(Media media: mediaList) {
-				mediaService.deleteMediaFile(media.getMediaId());
-			}
+			mediaRepository.deleteByBoardId(boardId);
 			
 			// 좋아요 삭제
 			opinionService.deleteByBoard_boardId(boardId);
@@ -371,7 +368,7 @@ public class BoardService {
 	public Map<String, Object> postOpinion(BoardDto boardDto) throws Exception{
 		Map<String, Object> result = new HashMap();
 		
-		Opinion opinion = opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
+		Opinion opinion = opinionRepository.findByBoardIdAndUserId(boardDto.getBoardId(), boardDto.getUserId());
 		
 		// Opinion테이블 처리
 		if(opinion == null) {
@@ -417,7 +414,7 @@ public class BoardService {
 	public Map<String, Object> deleteOpinion(BoardDto boardDto) throws Exception{
 		Map<String, Object> result = new HashMap();
 		
-		Long deleteResult = opinionRepository.deleteByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
+		Long deleteResult = opinionRepository.deleteByBoardIdAndUserId(boardDto.getBoardId(), boardDto.getUserId());
 		
 		if(deleteResult == 1) {
 			result.put("message", "success");
@@ -432,7 +429,7 @@ public class BoardService {
 	public Map<String, Object> getUserOpinion(BoardDto boardDto) throws Exception{
 		Map<String, Object> result = new HashMap();
 		
-		Opinion opinion = opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId());
+		Opinion opinion = opinionRepository.findByBoardIdAndUserId(boardDto.getBoardId(), boardDto.getUserId());
 		
 		if(opinion == null) {
 			result.put("opinion", "");

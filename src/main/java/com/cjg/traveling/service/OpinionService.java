@@ -16,11 +16,11 @@ public class OpinionService {
 	private OpinionRepository opinionRepository;
 	
 	public List<Opinion> findByBoard_boardId(Long boardId){
-		return opinionRepository.findByBoard_boardId(boardId);
+		return opinionRepository.findByBoardId(boardId);
 	}
 	
 	public Long deleteByBoard_boardId(Long boardId) {
-		return opinionRepository.deleteByBoard_boardId(boardId);
+		return opinionRepository.deleteByBoardId(boardId);
 	}
 
 }

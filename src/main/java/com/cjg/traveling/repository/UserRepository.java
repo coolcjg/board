@@ -15,20 +15,5 @@ public interface UserRepository extends JpaRepository<User, String> {
 	public User findByUserId(String userId);
 	
 	public void deleteByUserId(String userId);
-	
-	
-	
-	
-	
-	/*	
-	// 사용자 목록 검색
-	public List<User> getUserList(){
-		return em.createQuery("SELECT u FROM User u ORDER BY u.id", User.class).getResultList();
-	}
-	
-	public void deleteUser(User user) {
-		em.remove(user);
-	}
-	*/
 
 }

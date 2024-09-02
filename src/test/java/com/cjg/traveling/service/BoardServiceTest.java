@@ -494,7 +494,7 @@ public class BoardServiceTest {
 		mediaList.add(media3);
 		mediaList.add(media4);
 
-		given(mediaRepository.findByBoard_boardId(any(Long.class))).willReturn(mediaList);
+		given(mediaRepository.deleteByBoardId(any(Long.class))).willReturn((long)mediaList.size());
 
 		//When
 		Map<String, Object> result = boardService.deleteBoard(boardDto);
@@ -523,7 +523,7 @@ public class BoardServiceTest {
 		board.setBoardId(boardDto.getBoardId());
 		board.setUser(user_board);
 
-		given(opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(null);
+		given(opinionRepository.findByBoardIdAndUserId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(null);
 		given(userRepository.findByUserId(boardDto.getUserId())).willReturn(user_click);
 		given(boardRepository.findByBoardId(boardDto.getBoardId())).willReturn(board);
 
@@ -588,7 +588,7 @@ public class BoardServiceTest {
 		opinion.setBoard(board);
 		opinion.setValue(boardDto.getValue());
 
-		given(opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(opinion);
+		given(opinionRepository.findByBoardIdAndUserId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(opinion);
 
 		Map<String, Object> result = boardService.postOpinion(boardDto);
 
@@ -605,7 +605,7 @@ public class BoardServiceTest {
 		boardDto.setBoardId(1l);
 		boardDto.setUserId("testId");
 		
-		given(opinionRepository.deleteByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(1L);
+		given(opinionRepository.deleteByBoardIdAndUserId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(1L);
 		Map<String, Object> result = boardService.deleteOpinion(boardDto);
 
 		Assertions.assertThat(result.get("message")).isEqualTo("success");
@@ -619,7 +619,7 @@ public class BoardServiceTest {
 		boardDto.setBoardId(1l);
 		boardDto.setUserId("testId");
 
-		given(opinionRepository.deleteByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(0L);
+		given(opinionRepository.deleteByBoardIdAndUserId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(0L);
 		Map<String, Object> result = boardService.deleteOpinion(boardDto);
 
 		Assertions.assertThat(result.get("message")).isEqualTo("fail");
@@ -647,7 +647,7 @@ public class BoardServiceTest {
 		opinion.setValue("Y");
 		opinion.setRegDate(LocalDateTime.now());
 
-		given(opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(opinion);
+		given(opinionRepository.findByBoardIdAndUserId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(opinion);
 		Map<String, Object> result= boardService.getUserOpinion(boardDto);
 
 		assertThat(result.get("message")).isEqualTo("success");
@@ -668,7 +668,7 @@ public class BoardServiceTest {
 		Board board = new Board();
 		board.setBoardId(boardDto.getBoardId());
 
-		given(opinionRepository.findByBoard_boardIdAndUser_userId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(null);
+		given(opinionRepository.findByBoardIdAndUserId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(null);
 		Map<String, Object> result= boardService.getUserOpinion(boardDto);
 
 		assertThat(result.get("message")).isEqualTo("success");

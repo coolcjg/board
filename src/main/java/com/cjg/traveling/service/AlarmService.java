@@ -136,7 +136,7 @@ public class AlarmService {
 	}
 
 	public Long deleteByBoard_boardId(Long boardId) {
-		return alarmRepository.deleteByBoard_boardId(boardId);
+		return alarmRepository.deleteByBoardId(boardId);
 	}
 
 

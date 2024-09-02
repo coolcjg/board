@@ -36,7 +36,7 @@ public class OpinionServiceTest {
         opinion.setOpinionId(1L);
         list.add(opinion);
 
-        given(opinionRepository.findByBoard_boardId(boardId)).willReturn(list);
+        given(opinionRepository.findByBoardId(boardId)).willReturn(list);
 
         List<Opinion> result = opinionService.findByBoard_boardId(boardId);
 
@@ -50,7 +50,7 @@ public class OpinionServiceTest {
 
         Long boardId = 1L;
 
-        given(opinionRepository.deleteByBoard_boardId(boardId)).willReturn(1L);
+        given(opinionRepository.deleteByBoardId(boardId)).willReturn(1L);
 
         Long result = opinionService.deleteByBoard_boardId(boardId);
 

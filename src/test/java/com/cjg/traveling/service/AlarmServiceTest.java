@@ -223,7 +223,7 @@ public class AlarmServiceTest {
         //given
         Long boardId = 1L;
 
-        given(alarmRepository.deleteByBoard_boardId(boardId)).willReturn(1L);
+        given(alarmRepository.deleteByBoardId(boardId)).willReturn(1L);
 
         //when
         Long result = alarmService.deleteByBoard_boardId(boardId);
