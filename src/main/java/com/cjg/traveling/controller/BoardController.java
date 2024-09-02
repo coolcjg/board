@@ -1,25 +1,17 @@
 package com.cjg.traveling.controller;
 
-import java.util.Map;
-
 import com.cjg.traveling.common.Jwt;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.cjg.traveling.dto.BoardDto;
 import com.cjg.traveling.dto.BoardDtoInsert;
 import com.cjg.traveling.dto.BoardDtoUpdate;
+import com.cjg.traveling.dto.BoardSearchDto;
 import com.cjg.traveling.service.BoardService;
-
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 public class BoardController {
@@ -31,8 +23,8 @@ public class BoardController {
 	BoardService boardService;	
 	
 	@GetMapping("/board/list")
-	public Map<String, Object> list(@RequestParam(required = false) Map<String, String> map){
-		return boardService.list(map);
+	public Map<String, Object> list(BoardSearchDto dto){
+		return boardService.list(dto);
 	}
 	
 	@PostMapping(value ="/board")

@@ -80,27 +80,25 @@ public class BoardService {
 	@Autowired
 	private RedisPublisher redisPublisher;
 
-    public Map<String, Object> list(Map<String, String> map){
-
-		System.out.println("PARAM : " + map);
+    public Map<String, Object> list(BoardSearchDto dto){
 
 		Map<String, Object> result = new HashMap<String, Object>();
 		
 		BoardDto boardDTO = new BoardDto();
+
 		int pageNumber=1;
-		
-		if(map.get("pageNumber") != null && !map.get("pageNumber").isEmpty()) {
-			pageNumber = Integer.parseInt(map.get("pageNumber"));
+		if(dto.getPageNumber() !=0 ) {
+			pageNumber = dto.getPageNumber();
 		}
 		
 		boardDTO.setPageNumber(pageNumber);
 		Pageable pageable = PageRequest.of(boardDTO.getPageNumber()-1, 10, Sort.Direction.DESC, "regDate");
 		Page<Board> page;
 		
-		if(map.get("searchText") == null || map.get("searchText").equals("")) {
+		if(dto.getSearchText().isEmpty()) {
 			page = boardRepository.selectBoardPage(pageable);
 		}else {
-			page = boardRepository.selectBoardPage(pageable, map.get("searchType"), map.get("searchText"));
+			page = boardRepository.selectBoardPage(pageable, dto.getSearchType(), dto.getSearchText());
 		}
 		
 		List<BoardDto> boardList = new ArrayList();

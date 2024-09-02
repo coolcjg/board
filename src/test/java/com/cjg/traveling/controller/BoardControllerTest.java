@@ -5,6 +5,7 @@ import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.config.SecurityConfig;
 import com.cjg.traveling.dto.BoardDto;
+import com.cjg.traveling.dto.BoardSearchDto;
 import com.cjg.traveling.dto.OpinionDto;
 import com.cjg.traveling.dto.UserDto;
 import com.cjg.traveling.repository.BoardRepository;
@@ -73,6 +74,13 @@ public class BoardControllerTest {
         //파라미터
         MultiValueMap<String, String> mvm = new LinkedMultiValueMap<String, String>();
         mvm.add("pageNumber", "1");
+        mvm.add("searchType", "region");
+        mvm.add("searchText", "서울");
+
+        BoardSearchDto boardSearchDto = new BoardSearchDto();
+        boardSearchDto.setPageNumber(1);
+        boardSearchDto.setSearchType("region");
+        boardSearchDto.setSearchText("서울");
 
         Map<String,Object> result = new HashMap<>();
         result.put("message", "success");
@@ -104,7 +112,7 @@ public class BoardControllerTest {
         List<Integer> pagination = PageUtil.getStartEndPage(1, 1);
         result.put("pagination", pagination);
 
-        given(boardService.list(mvm.toSingleValueMap())).willReturn(result);
+        given(boardService.list(boardSearchDto)).willReturn(result);
 
         mvc.perform(get("/board/list").params(mvm))
         .andExpect(status().isOk())

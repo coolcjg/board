@@ -7,6 +7,7 @@ import com.cjg.traveling.common.kafka.KafkaProducer;
 import com.cjg.traveling.domain.*;
 import com.cjg.traveling.dto.AlarmDto;
 import com.cjg.traveling.dto.BoardDto;
+import com.cjg.traveling.dto.BoardSearchDto;
 import com.cjg.traveling.dto.UserDto;
 import com.cjg.traveling.redis.RedisPublisher;
 import com.cjg.traveling.repository.*;
@@ -105,13 +106,18 @@ public class BoardServiceTest {
 	}	
 	
 	@Test
-	@DisplayName("리스트 검색")
+	@DisplayName("리스트 검색 : 검색조건 있을 때")
 	public void list(){
 
 		Map<String,String> map = new HashMap();
 		map.put("pageNumber", "1");
 		map.put("searchType", "all");
 		map.put("searchText", "test");
+
+		BoardSearchDto boardSearchDto = new BoardSearchDto();
+		boardSearchDto.setPageNumber(1);
+		boardSearchDto.setSearchType("all");
+		boardSearchDto.setSearchText("test");
 
 		List<Board> boardList = new ArrayList();
 		User user = new User();
@@ -146,9 +152,9 @@ public class BoardServiceTest {
 		Pageable pageableMock = PageRequest.of(0, 10);
 		Page<Board> page = new PageImpl<>(boardList, pageableMock, 10L);
 
-		given(boardRepository.findAll(any(Specification.class), any(PageRequest.class))).willReturn(page);
+		given(boardRepository.selectBoardPage(any(Pageable.class))).willReturn(page);
 
-		Map<String,Object> result  = boardService.list(map);
+		Map<String,Object> result  = boardService.list(boardSearchDto);
 
 		Assertions.assertThat((String)result.get("message")).isEqualTo("success");
 
@@ -160,8 +166,10 @@ public class BoardServiceTest {
 
 		Map<String,String> map = new HashMap();
 		map.put("pageNumber", "1");
-		map.put("searchType", null);
-		map.put("searchText", null);
+		map.put("searchType", "");
+		map.put("searchText", "");
+
+		BoardSearchDto boardSearchDto = new BoardSearchDto();
 
 		List<Board> boardList = new ArrayList();
 		User user = new User();
@@ -198,7 +206,7 @@ public class BoardServiceTest {
 
 		given(boardRepository.findAll(any(PageRequest.class))).willReturn(page);
 
-		Map<String,Object> result  = boardService.list(map);
+		Map<String,Object> result  = boardService.list(boardSearchDto);
 
 		Assertions.assertThat((String)result.get("message")).isEqualTo("success");
 
