@@ -8,6 +8,7 @@ import com.cjg.traveling.dto.BoardDto;
 import com.cjg.traveling.dto.BoardSearchDto;
 import com.cjg.traveling.dto.OpinionDto;
 import com.cjg.traveling.dto.UserDto;
+import com.cjg.traveling.dto.board.DeleteOpinionDto;
 import com.cjg.traveling.repository.BoardRepository;
 import com.cjg.traveling.service.BoardService;
 import com.cjg.traveling.service.UserService;
@@ -233,14 +234,14 @@ public class BoardControllerTest {
     @WithMockUser
     @DisplayName("의견 삭제")
     void deleteOpinion() throws Exception{
-        BoardDto boardDto = new BoardDto();
+        DeleteOpinionDto deleteOpinionDto = new DeleteOpinionDto();
 
         Map<String, Object> result = new HashMap<>();
         result.put("message", "success");
 
-        given(boardService.deleteOpinion(boardDto)).willReturn(result);
+        given(boardService.deleteOpinion(deleteOpinionDto)).willReturn(result);
 
-        mvc.perform(delete("/board/opinion").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(boardDto)))
+        mvc.perform(delete("/board/opinion").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(deleteOpinionDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("success"))
                 .andDo(print());

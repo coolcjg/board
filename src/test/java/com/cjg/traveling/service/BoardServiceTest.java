@@ -9,6 +9,7 @@ import com.cjg.traveling.dto.AlarmDto;
 import com.cjg.traveling.dto.BoardDto;
 import com.cjg.traveling.dto.BoardSearchDto;
 import com.cjg.traveling.dto.UserDto;
+import com.cjg.traveling.dto.board.DeleteOpinionDto;
 import com.cjg.traveling.redis.RedisPublisher;
 import com.cjg.traveling.repository.*;
 import com.cjg.traveling.status.AlarmType;
@@ -606,12 +607,12 @@ public class BoardServiceTest {
 	@DisplayName("게시글 삭제 성공")
 	public void deleteOpinion() throws Exception{
 		
-		BoardDto boardDto = new BoardDto();
-		boardDto.setBoardId(1l);
-		boardDto.setUserId("testId");
+		DeleteOpinionDto deleteOpinionDto = new DeleteOpinionDto();
+		deleteOpinionDto.setBoardId(1l);
+		deleteOpinionDto.setUserId("testId");
 		
-		given(opinionRepository.deleteByBoardIdAndUserId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(1L);
-		Map<String, Object> result = boardService.deleteOpinion(boardDto);
+		given(opinionRepository.deleteByBoardIdAndUserId(deleteOpinionDto.getBoardId(), deleteOpinionDto.getUserId())).willReturn(1L);
+		Map<String, Object> result = boardService.deleteOpinion(deleteOpinionDto);
 
 		Assertions.assertThat(result.get("message")).isEqualTo("success");
 		
@@ -620,12 +621,12 @@ public class BoardServiceTest {
 	@Test
 	@DisplayName("게시글 삭제 실패")
 	public void deleteOpinion_2() throws Exception{
-		BoardDto boardDto = new BoardDto();
-		boardDto.setBoardId(1l);
-		boardDto.setUserId("testId");
+		DeleteOpinionDto deleteOpinionDto = new DeleteOpinionDto();
+		deleteOpinionDto.setBoardId(1l);
+		deleteOpinionDto.setUserId("testId");
 
-		given(opinionRepository.deleteByBoardIdAndUserId(boardDto.getBoardId(), boardDto.getUserId())).willReturn(0L);
-		Map<String, Object> result = boardService.deleteOpinion(boardDto);
+		given(opinionRepository.deleteByBoardIdAndUserId(deleteOpinionDto.getBoardId(), deleteOpinionDto.getUserId())).willReturn(0L);
+		Map<String, Object> result = boardService.deleteOpinion(deleteOpinionDto);
 
 		Assertions.assertThat(result.get("message")).isEqualTo("fail");
 	}

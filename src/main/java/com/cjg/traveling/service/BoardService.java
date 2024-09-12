@@ -7,6 +7,7 @@ import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.common.kafka.KafkaProducer;
 import com.cjg.traveling.domain.*;
 import com.cjg.traveling.dto.*;
+import com.cjg.traveling.dto.board.DeleteOpinionDto;
 import com.cjg.traveling.redis.RedisPublisher;
 import com.cjg.traveling.repository.*;
 import com.cjg.traveling.status.AlarmType;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -397,10 +399,10 @@ public class BoardService {
 		return result;
 	}
 
-	public Map<String, Object> deleteOpinion(BoardDto boardDto) throws Exception{
+	public Map<String, Object> deleteOpinion(DeleteOpinionDto deleteOpinionDto) throws Exception{
 		Map<String, Object> result = new HashMap();
 		
-		Long deleteResult = opinionRepository.deleteByBoardIdAndUserId(boardDto.getBoardId(), boardDto.getUserId());
+		Long deleteResult = opinionRepository.deleteByBoardIdAndUserId(deleteOpinionDto.getBoardId(), deleteOpinionDto.getUserId());
 		
 		if(deleteResult == 1) {
 			result.put("message", "success");

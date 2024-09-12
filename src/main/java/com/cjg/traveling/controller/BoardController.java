@@ -5,7 +5,10 @@ import com.cjg.traveling.dto.BoardDto;
 import com.cjg.traveling.dto.BoardDtoInsert;
 import com.cjg.traveling.dto.BoardDtoUpdate;
 import com.cjg.traveling.dto.BoardSearchDto;
+import com.cjg.traveling.dto.board.DeleteOpinionDto;
 import com.cjg.traveling.service.BoardService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -56,8 +59,9 @@ public class BoardController {
 	}
 	
 	@DeleteMapping(value ="/board/opinion")
-	public Map<String, Object> deleteOpinion(@RequestBody BoardDto boardDTO) throws Exception{
-		return boardService.deleteOpinion(boardDTO);
+	@Operation(summary = "의견 삭제", security= @SecurityRequirement(name="accessToken"))
+	public Map<String, Object> deleteOpinion(@RequestBody DeleteOpinionDto deleteOpinionDto) throws Exception{
+		return boardService.deleteOpinion(deleteOpinionDto);
 	}
 	
 	@PostMapping(value ="/board/userOpinion")
