@@ -52,12 +52,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 				SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 				securityContext.setAuthentication(authentication);
 				SecurityContextHolder.setContext(securityContext);
-			}else{
-				//토큰이 없을 때
-				Gson gson = new Gson();
-				Response<String> responseDto = Response.fail(Result.UNAUTHORIZED);
-				response.getWriter().print(gson.toJson(responseDto));
-				return;
 			}
 			
 		}catch(ExpiredJwtException e) {

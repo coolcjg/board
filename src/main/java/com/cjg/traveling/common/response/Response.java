@@ -19,7 +19,7 @@ public class Response<T> {
         return new Response<>(Result.SUCCESS.getCode(), Result.SUCCESS.getMessage(), null);
     }
 
-    public static <T> Response<T> fail(Result result){
-        return new Response<>(result.getCode(), result.getMessage(), null);
+    public static <T> Response<T> fail(Result result, String message){
+        return new Response<>(result.getCode(), message, null);
     }
 }

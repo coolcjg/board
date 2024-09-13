@@ -16,22 +16,18 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint{
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
-		
+
 		String exception = (String)request.getAttribute("exception");
-		
-		if(exception != null) {
-			setResponse(response, exception);
-		}
-		
-	}
+		setResponse(response, authException.getMessage());
+    }
 	
 	private void setResponse(HttpServletResponse response, String message) throws IOException {
-		
+
 		response.setContentType("application/json;charset=UTF-8");
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		
 		Gson gson = new Gson();
-		Response<Void> responseDto = Response.fail(Result.UNAUTHORIZED);
+		Response<Void> responseDto = Response.fail(Result.UNAUTHORIZED, "authError");
 		response.getWriter().print(gson.toJson(responseDto));
 	}
 	
