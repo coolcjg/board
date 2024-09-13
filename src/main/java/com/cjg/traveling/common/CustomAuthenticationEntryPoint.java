@@ -1,16 +1,15 @@
 package com.cjg.traveling.common;
 
-import java.io.IOException;
-
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
-
+import com.cjg.traveling.common.response.Response;
+import com.cjg.traveling.common.response.Result;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+
+import java.io.IOException;
 
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint{
 
@@ -32,10 +31,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint{
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		
 		Gson gson = new Gson();
-		JsonObject jsonObject = new JsonObject();
-		jsonObject.addProperty("code", HttpServletResponse.SC_UNAUTHORIZED);
-		jsonObject.addProperty("message", message);
-		response.getWriter().print(gson.toJson(jsonObject));
+		Response<Void> responseDto = Response.fail(Result.UNAUTHORIZED);
+		response.getWriter().print(gson.toJson(responseDto));
 	}
 	
 }

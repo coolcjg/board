@@ -1,12 +1,11 @@
 package com.cjg.traveling.service;
 
-import com.cjg.traveling.common.FileExtension;
-import com.cjg.traveling.common.HttpRequestUtil;
-import com.cjg.traveling.common.Jwt;
-import com.cjg.traveling.common.PageUtil;
+import com.cjg.traveling.common.*;
 import com.cjg.traveling.common.kafka.KafkaProducer;
+import com.cjg.traveling.common.response.Response;
 import com.cjg.traveling.domain.*;
 import com.cjg.traveling.dto.*;
+import com.cjg.traveling.dto.board.BoardListResponseDto;
 import com.cjg.traveling.dto.board.DeleteOpinionDto;
 import com.cjg.traveling.redis.RedisPublisher;
 import com.cjg.traveling.repository.*;
@@ -22,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -81,9 +79,9 @@ public class BoardService {
 	@Autowired
 	private RedisPublisher redisPublisher;
 
-    public Map<String, Object> list(BoardSearchDto dto){
+    public Response<BoardListResponseDto> list(BoardSearchDto dto){
 
-		Map<String, Object> result = new HashMap<String, Object>();
+		BoardListResponseDto responseDto = new BoardListResponseDto();
 		
 		BoardDto boardDTO = new BoardDto();
 
@@ -118,18 +116,18 @@ public class BoardService {
 			boardList.add(temp);
 			
 		}
-		
-		result.put("message", "success");
-		result.put("boardList", boardList);
+
+		responseDto.setBoardList(boardList);
 		
 		int totalPage = page.getTotalPages() == 0 ? 1 : page.getTotalPages();
-		result.put("pageNumber", page.getPageable().getPageNumber()+1);
-		result.put("totalPage", totalPage);
+		responseDto.setPageNumber(page.getPageable().getPageNumber()+1);
+		responseDto.setTotalPage(totalPage);
 		
 		List<Integer> pagination = PageUtil.getStartEndPage(pageNumber, totalPage);
-		result.put("pagination", pagination);
+		responseDto.setPagination(pagination);
+
 		
-		return result;
+		return Response.success(responseDto);
 	}
 	
 	public Map<String, Object> findByBoardId(long boardId) {
@@ -210,7 +208,7 @@ public class BoardService {
 	}
 	
 	
-	public Map<String, Object> save(BoardDto boardDto) throws Exception{
+	public Response<Void> save(BoardDto boardDto) throws Exception{
 		
 		Map<String, Object> map = new HashMap();
 
@@ -226,9 +224,8 @@ public class BoardService {
 		Board newBoard = boardRepository.save(board);
 		
 		checkUploadFile(boardDto, newBoard);
-		
-		map.put("message", "success");
-		return map;	
+
+		return Response.success();
 	}
 	
 	// 파일 업로드 체크

@@ -2,6 +2,9 @@ package com.cjg.traveling.common;
 
 import java.io.IOException;
 
+import com.cjg.traveling.common.response.Response;
+import com.cjg.traveling.common.response.Result;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -49,6 +52,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 				SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 				securityContext.setAuthentication(authentication);
 				SecurityContextHolder.setContext(securityContext);
+			}else{
+				//토큰이 없을 때
+				Gson gson = new Gson();
+				Response<String> responseDto = Response.fail(Result.UNAUTHORIZED);
+				response.getWriter().print(gson.toJson(responseDto));
+				return;
 			}
 			
 		}catch(ExpiredJwtException e) {

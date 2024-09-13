@@ -1,10 +1,12 @@
 package com.cjg.traveling.controller;
 
+import com.cjg.traveling.common.response.Response;
 import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.dto.BoardDto;
 import com.cjg.traveling.dto.BoardDtoInsert;
 import com.cjg.traveling.dto.BoardDtoUpdate;
 import com.cjg.traveling.dto.BoardSearchDto;
+import com.cjg.traveling.dto.board.BoardListResponseDto;
 import com.cjg.traveling.dto.board.DeleteOpinionDto;
 import com.cjg.traveling.service.BoardService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,12 +28,12 @@ public class BoardController {
 	BoardService boardService;	
 	
 	@GetMapping("/board/list")
-	public Map<String, Object> list(BoardSearchDto dto){
+	public Response<BoardListResponseDto> list(BoardSearchDto dto){
 		return boardService.list(dto);
 	}
 	
 	@PostMapping(value ="/board")
-	public Map<String, Object> board(HttpServletRequest request, @Validated(BoardDtoInsert.class) BoardDto boardDTO) throws Exception{
+	public Response<Void> board(HttpServletRequest request, @Validated(BoardDtoInsert.class) BoardDto boardDTO) throws Exception{
 		String accessToken = request.getHeader("accessToken");
 		String userId = jwt.getUserId(accessToken);
 		boardDTO.setUserId(userId);
