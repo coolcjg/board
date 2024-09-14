@@ -1,31 +1,25 @@
 package com.cjg.traveling.service;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.cjg.traveling.common.Jwt;
+import com.cjg.traveling.common.response.Response;
 import com.cjg.traveling.domain.User;
-
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class JwtService {
-	
-	@Autowired
-	Jwt jwt;
-	
-	@Autowired
-	UserService userService;
+
+	private final Jwt jwt;
+	private final UserService userService;
 	
 	public Map<String, Object> accessToken(String refreshToken){
 		
@@ -57,6 +51,11 @@ public class JwtService {
 		
 		return result;		
 		
+	}
+
+	public ResponseEntity<Response<String>> accessTokenForTest(String userId){
+		User user = userService.findByUserId(userId);
+		return ResponseEntity.ok(Response.success(jwt.createAccessToken(user)));
 	}
 
 }

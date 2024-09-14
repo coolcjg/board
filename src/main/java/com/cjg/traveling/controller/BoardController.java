@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,7 @@ public class BoardController {
 		return boardService.list(dto);
 	}
 	
-	@PostMapping(value ="/board")
+	@PostMapping(value ="/board", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "게시글 등록", security= @SecurityRequirement(name="accessToken"))
 	public ResponseEntity<Response<String>> board(HttpServletRequest request, PostBoardRequestDto postBoardRequestDto) throws Exception{
 		String accessToken = request.getHeader("accessToken");
