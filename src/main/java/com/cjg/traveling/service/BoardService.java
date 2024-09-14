@@ -7,6 +7,8 @@ import com.cjg.traveling.domain.*;
 import com.cjg.traveling.dto.*;
 import com.cjg.traveling.dto.board.BoardListResponseDto;
 import com.cjg.traveling.dto.board.DeleteOpinionDto;
+import com.cjg.traveling.dto.board.PostBoardRequestDto;
+import com.cjg.traveling.dto.board.PutBoardRequestDto;
 import com.cjg.traveling.redis.RedisPublisher;
 import com.cjg.traveling.repository.*;
 import com.cjg.traveling.status.AlarmType;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -79,7 +82,7 @@ public class BoardService {
 	@Autowired
 	private RedisPublisher redisPublisher;
 
-    public Response<BoardListResponseDto> list(BoardSearchDto dto){
+    public ResponseEntity<Response<BoardListResponseDto>> list(BoardSearchDto dto){
 
 		BoardListResponseDto responseDto = new BoardListResponseDto();
 		
@@ -126,8 +129,10 @@ public class BoardService {
 		List<Integer> pagination = PageUtil.getStartEndPage(pageNumber, totalPage);
 		responseDto.setPagination(pagination);
 
+
+
 		
-		return Response.success(responseDto);
+		return ResponseEntity.ok(Response.success(responseDto));
 	}
 	
 	public Map<String, Object> findByBoardId(long boardId) {
@@ -208,32 +213,32 @@ public class BoardService {
 	}
 	
 	
-	public Response<Void> save(BoardDto boardDto) throws Exception{
+	public ResponseEntity<Response<String>> save(PostBoardRequestDto postBoardRequestDto) throws Exception{
 		
 		Map<String, Object> map = new HashMap();
 
 		User user = new User();
-		user.setUserId(boardDto.getUserId());
+		user.setUserId(postBoardRequestDto.getUserId());
 
 		Board board = new Board();
 		board.setUser(user);
-		board.setTitle(boardDto.getTitle());
-		board.setRegion(boardDto.getRegion());
-		board.setContents(boardDto.getContents());
-		
+		board.setTitle(postBoardRequestDto.getTitle());
+		board.setRegion(postBoardRequestDto.getRegion());
+		board.setContents(postBoardRequestDto.getContents());
+
 		Board newBoard = boardRepository.save(board);
 		
-		checkUploadFile(boardDto, newBoard);
+		checkUploadFile(postBoardRequestDto, newBoard);
 
-		return Response.success();
+		return ResponseEntity.ok(Response.success("ok"));
 	}
 	
 	// 파일 업로드 체크
-	private void checkUploadFile(BoardDto boardDTO, Board board) throws Exception {
+	private void checkUploadFile(PostBoardRequestDto postBoardRequestDto, Board board) throws Exception {
 		
 		//업로드 파일
-		if(boardDTO.getFiles() != null && boardDTO.getFiles().size() > 0) {
-			List<Map<String, String>>  mediaList = uploadFile(board, boardDTO.getFiles());
+		if(postBoardRequestDto.getFiles() != null && !postBoardRequestDto.getFiles().isEmpty()) {
+			List<Map<String, String>>  mediaList = uploadFile(board, postBoardRequestDto.getFiles());
 			
 			//업로드 서버 요청 전달
 			for(Map<String, String> media : mediaList) {
@@ -306,19 +311,16 @@ public class BoardService {
 		return result;
 	}
 	
-	public Map<String, Object> updateBoard(BoardDto boardDto) throws Exception{
-		
-		Map<String, Object> result = new HashMap();
-		
-		Board board = boardRepository.findByBoardId(boardDto.getBoardId());
-		board.setTitle(boardDto.getTitle());
-		board.setRegion(boardDto.getRegion());
-		board.setContents(boardDto.getContents());
-				
-		checkUploadFile(boardDto, board);
+	public ResponseEntity<Response<String>> updateBoard(PutBoardRequestDto putBoardRequestDto) throws Exception{
 
-		result.put("message", "success");
-		return result;
+		Board board = boardRepository.findByBoardId(putBoardRequestDto.getBoardId());
+		board.setTitle(putBoardRequestDto.getTitle());
+		board.setRegion(putBoardRequestDto.getRegion());
+		board.setContents(putBoardRequestDto.getContents());
+				
+		checkUploadFile(putBoardRequestDto, board);
+
+		return ResponseEntity.ok(Response.success("ok"));
 	}
 	
 	public Map<String, Object> deleteBoard(BoardDto boardDto) throws Exception{

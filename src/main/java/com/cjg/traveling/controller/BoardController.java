@@ -3,17 +3,17 @@ package com.cjg.traveling.controller;
 import com.cjg.traveling.common.response.Response;
 import com.cjg.traveling.common.Jwt;
 import com.cjg.traveling.dto.BoardDto;
-import com.cjg.traveling.dto.BoardDtoInsert;
-import com.cjg.traveling.dto.BoardDtoUpdate;
 import com.cjg.traveling.dto.BoardSearchDto;
 import com.cjg.traveling.dto.board.BoardListResponseDto;
 import com.cjg.traveling.dto.board.DeleteOpinionDto;
+import com.cjg.traveling.dto.board.PostBoardRequestDto;
+import com.cjg.traveling.dto.board.PutBoardRequestDto;
 import com.cjg.traveling.service.BoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -25,19 +25,21 @@ public class BoardController {
 	private Jwt jwt;
 	
 	@Autowired
-	BoardService boardService;	
+	BoardService boardService;
 	
 	@GetMapping("/board/list")
-	public Response<BoardListResponseDto> list(BoardSearchDto dto){
+	@Operation(summary = "게시판 리스트")
+	public ResponseEntity<Response<BoardListResponseDto>> list(BoardSearchDto dto){
 		return boardService.list(dto);
 	}
 	
 	@PostMapping(value ="/board")
-	public Response<Void> board(HttpServletRequest request, @Validated(BoardDtoInsert.class) BoardDto boardDTO) throws Exception{
+	@Operation(summary = "게시글 등록", security= @SecurityRequirement(name="accessToken"))
+	public ResponseEntity<Response<String>> board(HttpServletRequest request, PostBoardRequestDto postBoardRequestDto) throws Exception{
 		String accessToken = request.getHeader("accessToken");
 		String userId = jwt.getUserId(accessToken);
-		boardDTO.setUserId(userId);
-		return boardService.save(boardDTO);
+		postBoardRequestDto.setUserId(userId);
+		return boardService.save(postBoardRequestDto);
 	}
 		
 	@GetMapping(value ="/board/{boardId}")
@@ -46,8 +48,9 @@ public class BoardController {
 	}
 	
 	@PutMapping(value ="/board/{boardId}")
-	public Map<String, Object> updateBoard(HttpServletRequest request, @Validated(BoardDtoUpdate.class) BoardDto boardDto) throws Exception{
-		return boardService.updateBoard(boardDto);
+	@Operation(summary = "게시글 수정", security= @SecurityRequirement(name="accessToken"))
+	public ResponseEntity<Response<String>> updateBoard(HttpServletRequest request, PutBoardRequestDto putBoardRequestDto) throws Exception{
+		return boardService.updateBoard(putBoardRequestDto);
 	}	
 	
 	@DeleteMapping(value ="/board")
