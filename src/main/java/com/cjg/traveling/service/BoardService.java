@@ -1,6 +1,9 @@
 package com.cjg.traveling.service;
 
-import com.cjg.traveling.common.*;
+import com.cjg.traveling.common.FileExtension;
+import com.cjg.traveling.common.HttpRequestUtil;
+import com.cjg.traveling.common.Jwt;
+import com.cjg.traveling.common.PageUtil;
 import com.cjg.traveling.common.kafka.KafkaProducer;
 import com.cjg.traveling.common.response.Response;
 import com.cjg.traveling.domain.*;
@@ -213,7 +216,7 @@ public class BoardService {
 	}
 	
 	
-	public ResponseEntity<Response<String>> save(PostBoardRequestDto postBoardRequestDto) throws Exception{
+	public ResponseEntity<Response<?>> save(PostBoardRequestDto postBoardRequestDto, List<MultipartFile> files) throws Exception{
 		
 		Map<String, Object> map = new HashMap();
 
@@ -228,17 +231,17 @@ public class BoardService {
 
 		Board newBoard = boardRepository.save(board);
 		
-		checkUploadFile(postBoardRequestDto, newBoard);
+		checkUploadFile(postBoardRequestDto, newBoard, files);
 
 		return ResponseEntity.ok(Response.success("ok"));
 	}
 	
 	// 파일 업로드 체크
-	private void checkUploadFile(PostBoardRequestDto postBoardRequestDto, Board board) throws Exception {
+	private void checkUploadFile(PostBoardRequestDto postBoardRequestDto, Board board, List<MultipartFile> files) throws Exception {
 		
 		//업로드 파일
-		if(postBoardRequestDto.getFiles() != null && !postBoardRequestDto.getFiles().isEmpty()) {
-			List<Map<String, String>>  mediaList = uploadFile(board, postBoardRequestDto.getFiles());
+		if(files != null && !files.isEmpty()) {
+			List<Map<String, String>>  mediaList = uploadFile(board, files);
 			
 			//업로드 서버 요청 전달
 			for(Map<String, String> media : mediaList) {
@@ -311,14 +314,14 @@ public class BoardService {
 		return result;
 	}
 	
-	public ResponseEntity<Response<String>> updateBoard(PutBoardRequestDto putBoardRequestDto) throws Exception{
+	public ResponseEntity<Response<String>> updateBoard(PutBoardRequestDto putBoardRequestDto, List<MultipartFile> files) throws Exception{
 
 		Board board = boardRepository.findByBoardId(putBoardRequestDto.getBoardId());
 		board.setTitle(putBoardRequestDto.getTitle());
 		board.setRegion(putBoardRequestDto.getRegion());
 		board.setContents(putBoardRequestDto.getContents());
 				
-		checkUploadFile(putBoardRequestDto, board);
+		checkUploadFile(putBoardRequestDto, board, files);
 
 		return ResponseEntity.ok(Response.success("ok"));
 	}

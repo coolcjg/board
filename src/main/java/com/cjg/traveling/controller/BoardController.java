@@ -16,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -36,11 +38,11 @@ public class BoardController {
 	
 	@PostMapping(value ="/board", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "게시글 등록", security= @SecurityRequirement(name="accessToken"))
-	public ResponseEntity<Response<String>> board(HttpServletRequest request, PostBoardRequestDto postBoardRequestDto) throws Exception{
+	public ResponseEntity<Response<?>> board(HttpServletRequest request, PostBoardRequestDto postBoardRequestDto, @RequestPart(name = "files", required = false) List<MultipartFile> files) throws Exception{
 		String accessToken = request.getHeader("accessToken");
 		String userId = jwt.getUserId(accessToken);
 		postBoardRequestDto.setUserId(userId);
-		return boardService.save(postBoardRequestDto);
+		return boardService.save(postBoardRequestDto, files);
 	}
 		
 	@GetMapping(value ="/board/{boardId}")
@@ -50,8 +52,8 @@ public class BoardController {
 	
 	@PutMapping(value ="/board/{boardId}")
 	@Operation(summary = "게시글 수정", security= @SecurityRequirement(name="accessToken"))
-	public ResponseEntity<Response<String>> updateBoard(HttpServletRequest request, PutBoardRequestDto putBoardRequestDto) throws Exception{
-		return boardService.updateBoard(putBoardRequestDto);
+	public ResponseEntity<Response<String>> updateBoard(HttpServletRequest request, PutBoardRequestDto putBoardRequestDto, @RequestPart(name = "files", required = false) List<MultipartFile> files) throws Exception{
+		return boardService.updateBoard(putBoardRequestDto, files);
 	}	
 	
 	@DeleteMapping(value ="/board")
