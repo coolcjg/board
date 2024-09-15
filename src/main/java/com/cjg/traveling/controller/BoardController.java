@@ -38,23 +38,26 @@ public class BoardController {
 	
 	@PostMapping(value ="/board", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "게시글 등록", security= @SecurityRequirement(name="accessToken"))
-	public ResponseEntity<Response<?>> board(HttpServletRequest request, PostBoardRequestDto postBoardRequestDto, @RequestPart(name = "files", required = false) List<MultipartFile> files) throws Exception{
+	public ResponseEntity<Response<?>> board(HttpServletRequest request, PostBoardRequestDto postBoardRequestDto) throws Exception{
 		String accessToken = request.getHeader("accessToken");
 		String userId = jwt.getUserId(accessToken);
 		postBoardRequestDto.setUserId(userId);
-		return boardService.save(postBoardRequestDto, files);
+		return boardService.save(postBoardRequestDto);
 	}
 		
 	@GetMapping(value ="/board/{boardId}")
 	public Map<String, Object> board(HttpServletRequest request, @PathVariable("boardId") long boardId) throws Exception{
 		return boardService.findByBoardId(boardId);
 	}
-	
+
+	/*
 	@PutMapping(value ="/board/{boardId}")
 	@Operation(summary = "게시글 수정", security= @SecurityRequirement(name="accessToken"))
 	public ResponseEntity<Response<String>> updateBoard(HttpServletRequest request, PutBoardRequestDto putBoardRequestDto, @RequestPart(name = "files", required = false) List<MultipartFile> files) throws Exception{
 		return boardService.updateBoard(putBoardRequestDto, files);
-	}	
+	}
+	*/
+
 	
 	@DeleteMapping(value ="/board")
 	public Map<String, Object> deleteBoard(HttpServletRequest request, @RequestBody BoardDto boardDTO) throws Exception{

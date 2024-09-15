@@ -216,8 +216,8 @@ public class BoardService {
 	}
 	
 	
-	public ResponseEntity<Response<?>> save(PostBoardRequestDto postBoardRequestDto, List<MultipartFile> files) throws Exception{
-		
+	public ResponseEntity<Response<?>> save(PostBoardRequestDto postBoardRequestDto) throws Exception{
+
 		Map<String, Object> map = new HashMap();
 
 		User user = new User();
@@ -231,18 +231,18 @@ public class BoardService {
 
 		Board newBoard = boardRepository.save(board);
 		
-		checkUploadFile(postBoardRequestDto, newBoard, files);
+		checkUploadFile(postBoardRequestDto, newBoard);
 
 		return ResponseEntity.ok(Response.success("ok"));
 	}
 	
 	// 파일 업로드 체크
-	private void checkUploadFile(PostBoardRequestDto postBoardRequestDto, Board board, List<MultipartFile> files) throws Exception {
-		
+	private void checkUploadFile(PostBoardRequestDto boardDTO, Board board) throws Exception {
+
 		//업로드 파일
-		if(files != null && !files.isEmpty()) {
-			List<Map<String, String>>  mediaList = uploadFile(board, files);
-			
+		if(boardDTO.getFiles() != null && boardDTO.getFiles().size() > 0) {
+			List<Map<String, String>>  mediaList = uploadFile(board, boardDTO.getFiles());
+
 			//업로드 서버 요청 전달
 			for(Map<String, String> media : mediaList) {
 				Map<String, String> encodingParam = new HashMap();
@@ -256,9 +256,9 @@ public class BoardService {
 				String opinionString = gson.toJson(encodingParam);
 				kafkaProducer.create("encoding", opinionString);
 
-			}			
-		}		
-		
+			}
+		}
+
 	}
 
 	// 파일 업로드	
@@ -313,18 +313,18 @@ public class BoardService {
 		
 		return result;
 	}
-	
-	public ResponseEntity<Response<String>> updateBoard(PutBoardRequestDto putBoardRequestDto, List<MultipartFile> files) throws Exception{
-
-		Board board = boardRepository.findByBoardId(putBoardRequestDto.getBoardId());
-		board.setTitle(putBoardRequestDto.getTitle());
-		board.setRegion(putBoardRequestDto.getRegion());
-		board.setContents(putBoardRequestDto.getContents());
-				
-		checkUploadFile(putBoardRequestDto, board, files);
-
-		return ResponseEntity.ok(Response.success("ok"));
-	}
+//
+//	public ResponseEntity<Response<String>> updateBoard(PutBoardRequestDto putBoardRequestDto, List<MultipartFile> files) throws Exception{
+//
+//		Board board = boardRepository.findByBoardId(putBoardRequestDto.getBoardId());
+//		board.setTitle(putBoardRequestDto.getTitle());
+//		board.setRegion(putBoardRequestDto.getRegion());
+//		board.setContents(putBoardRequestDto.getContents());
+//
+//		checkUploadFile(putBoardRequestDto, board, files);
+//
+//		return ResponseEntity.ok(Response.success("ok"));
+//	}
 	
 	public Map<String, Object> deleteBoard(BoardDto boardDto) throws Exception{
 		
